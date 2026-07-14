@@ -8,7 +8,7 @@
         </div>
         <p class="eyebrow">DAEYUJAM AI</p>
         <h1>당신의 취향을 읽는<br />AI 여행 가이드</h1>
-        <p>{{ profileSummary }} 정보를 바탕으로 장소와 이유를 함께 추천해요.</p>
+        <p>{{ profileSummary }} 정보를 바탕으로 장소 데이터를 함께 보고 추천해요.</p>
         <div class="prompt-chip-row">
           <button type="button" @click="usePrompt('성심당 근처에서 같이 갈 만한 카페 추천해줘')">
             성심당 근처 카페
@@ -34,25 +34,32 @@
             :class="message.role"
           >
             <div class="chat-speaker">{{ message.role === "user" ? "나" : "대유잼 AI" }}</div>
-            <div class="chat-message">{{ message.text }}</div>
+            <div class="chat-message" :class="{ 'error-message': message.variant === 'error' }">
+              <span v-if="message.variant === 'error'" class="chat-message-label"
+                >연결 확인 필요</span
+              >
+              {{ message.text }}
+            </div>
             <div v-if="message.places?.length" class="chat-place-grid">
               <article v-for="place in message.places" :key="place.id" class="chat-place-card">
                 <img
-                  :src="place.first_image || place.first_image2 || placeholder"
+                  :src="place.first_image || place.first_image2 || DAEYUJAM_PLACEHOLDER_IMAGE"
                   :alt="place.title"
                   @error="onImageError"
                 />
                 <div class="chat-place-body">
-                  <span class="badge">{{ place.content_type || "장소" }}</span>
+                  <div class="chat-place-topline">
+                    <span class="badge">{{ place.content_type || "장소" }}</span>
+                    <span class="chat-place-score">★ {{ place.average_rating || "0.0" }}</span>
+                  </div>
                   <h3>{{ place.title }}</h3>
                   <p class="meta">{{ place.addr1 || "주소 정보 없음" }}</p>
-                  <p class="rating">
-                    별점 {{ place.average_rating || 0 }} · 리뷰 {{ place.review_count || 0 }}
-                  </p>
-                  <p class="reason">{{ place.recommendation_reason }}</p>
-                  <RouterLink class="detail-button" :to="`/map/${place.id}`"
-                    >자세히 보기</RouterLink
-                  >
+                  <div class="chat-place-actions">
+                    <span class="chat-place-review">리뷰 {{ place.review_count || 0 }}</span>
+                    <RouterLink class="detail-button" :to="`/map/${place.id}`"
+                      >자세히 보기</RouterLink
+                    >
+                  </div>
                 </div>
               </article>
             </div>
@@ -62,8 +69,6 @@
             <div class="chat-message typing-message"><span></span><span></span><span></span></div>
           </div>
         </div>
-
-        <p v-if="error" class="notice">{{ error }}</p>
 
         <form class="chat-input-bar ai-chat-input" @submit.prevent="submitMessage">
           <input
@@ -85,27 +90,13 @@ import { computed, nextTick, ref } from "vue";
 
 import { sendChatMessage } from "../api/ai";
 import AppHeader from "../components/common/AppHeader.vue";
+import { DAEYUJAM_PLACEHOLDER_IMAGE } from "../constants/images";
 import { useProfileStore } from "../stores/profile";
 
 const profileStore = useProfileStore();
 const draft = ref("");
 const loading = ref(false);
-const error = ref("");
 const chatLog = ref(null);
-
-const placeholder =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-    <rect width="640" height="420" fill="#ffffff"/>
-    <g transform="translate(216 154)">
-      <rect x="0" y="0" width="72" height="72" rx="22" fill="#ff385c" transform="rotate(-6 36 36)"/>
-      <text x="36" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="45" font-weight="900" fill="#ffffff">대</text>
-      <circle cx="75" cy="71" r="16" fill="#ffffff" stroke="#ff385c" stroke-width="5"/>
-      <text x="75" y="79" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#ff385c">전</text>
-      <text x="128" y="54" font-family="Arial, sans-serif" font-size="45" font-weight="900" fill="#222222">유잼</text>
-    </g>
-  </svg>`);
 
 const profile = computed(() => profileStore.profile || {});
 const profileSummary = computed(() => {
@@ -120,7 +111,7 @@ const messages = ref([
   {
     id: crypto.randomUUID(),
     role: "bot",
-    text: "궁금한 지역, 분위기, 동행 유형을 알려주면 대전 로컬 장소 데이터를 함께 보고 추천해드릴게요.",
+    text: "안녕하세요! 대유잼 AI 입니다. 궁금한 지역, 분위기, 일정을 알려주면 장소 데이터를 함께 보고 추천해드릴게요.",
     places: [],
   },
 ]);
@@ -130,7 +121,7 @@ function usePrompt(text) {
 }
 
 function onImageError(event) {
-  event.target.src = placeholder;
+  event.target.src = DAEYUJAM_PLACEHOLDER_IMAGE;
 }
 
 async function scrollToBottom() {
@@ -145,7 +136,6 @@ async function submitMessage() {
   messages.value.push({ id: crypto.randomUUID(), role: "user", text, places: [] });
   draft.value = "";
   loading.value = true;
-  error.value = "";
   await scrollToBottom();
 
   try {
@@ -166,8 +156,16 @@ async function submitMessage() {
       text: response.answer,
       places: response.places || [],
     });
-  } catch {
-    error.value = "챗봇 API 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해 주세요.";
+  } catch (chatError) {
+    messages.value.push({
+      id: crypto.randomUUID(),
+      role: "bot",
+      variant: "error",
+      text:
+        chatError.message ||
+        "AI 추천 요청을 처리하지 못했어요. 백엔드 서버와 LLM 설정을 확인해 주세요.",
+      places: [],
+    });
   } finally {
     loading.value = false;
     await scrollToBottom();

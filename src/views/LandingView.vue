@@ -4,6 +4,14 @@ import { useRouter } from 'vue-router'
 
 import { saveUser } from '../api/users'
 import AppLogo from '../components/common/AppLogo.vue'
+import {
+  COMPANION_TYPES,
+  PLACE_CATEGORIES,
+  REGION_DATA,
+  SUGGESTED_KEYWORDS,
+  TRAVEL_STYLES
+} from '../constants/onboarding'
+import { LANDING_SLIDES } from '../constants/slides'
 import { useProfileStore } from '../stores/profile'
 
 const router = useRouter()
@@ -11,52 +19,6 @@ const profileStore = useProfileStore()
 const error = ref('')
 const activeSlide = ref(0)
 let slideTimer
-
-const landingSlides = [
-  { image: '/assets/landing-daejeon-night.png', alt: '대전 엑스포 일대 야경' },
-  { image: '/assets/landing-sky-road.png', alt: '대전 스카이로드' },
-  { image: '/assets/landing-bakery.png', alt: '성심당 베이커리 진열대' }
-]
-
-const REGION_DATA = {
-  대전광역시: { 대전광역시: ['동구', '중구', '서구', '유성구', '대덕구'] },
-  충청북도: {
-    청주시: ['상당구', '서원구', '흥덕구', '청원구'],
-    충주시: [],
-    제천시: [],
-    보은군: [],
-    옥천군: [],
-    영동군: [],
-    증평군: [],
-    진천군: [],
-    괴산군: [],
-    음성군: [],
-    단양군: []
-  },
-  충청남도: {
-    천안시: ['동남구', '서북구'],
-    공주시: [],
-    보령시: [],
-    아산시: [],
-    서산시: [],
-    논산시: [],
-    계룡시: [],
-    당진시: [],
-    금산군: [],
-    부여군: [],
-    서천군: [],
-    청양군: [],
-    홍성군: [],
-    예산군: [],
-    태안군: []
-  },
-  세종특별자치시: { 세종특별자치시: [] }
-}
-
-const categories = ['관광지', '문화시설', '축제공연행사', '여행코스', '레포츠', '숙박', '쇼핑', '음식점']
-const suggestedKeywords = ['성심당', '카페', '야경', '산책', '전시', '빵지순례', '데이트', '아이와 함께', '비 오는 날']
-const travelStyles = ['느긋한 산책', '맛집 탐방', '문화생활', '사진 촬영', '액티비티', '축제', '쇼핑', '가족 나들이', '무관']
-const companionTypes = ['혼자', '친구', '연인', '가족', '아이 동반', '반려동물', '무관']
 
 const form = reactive({
   interests: [],
@@ -71,13 +33,13 @@ const form = reactive({
   nickname: ''
 })
 
-const currentSlide = computed(() => landingSlides[activeSlide.value])
+const currentSlide = computed(() => LANDING_SLIDES[activeSlide.value])
 const provinceOptions = computed(() => Object.keys(REGION_DATA))
 const cityOptions = computed(() => Object.keys(REGION_DATA[form.province] || {}))
 const districtOptions = computed(() => REGION_DATA[form.province]?.[form.city] || [])
 
 function nextSlide() {
-  activeSlide.value = (activeSlide.value + 1) % landingSlides.length
+  activeSlide.value = (activeSlide.value + 1) % LANDING_SLIDES.length
 }
 
 function goToSlide(index) {
@@ -183,7 +145,7 @@ onBeforeUnmount(() => window.clearInterval(slideTimer))
         </div>
         <div class="hero-dots landing-dots" aria-label="랜딩 배너 선택">
           <button
-            v-for="(_, index) in landingSlides"
+          v-for="(_, index) in LANDING_SLIDES"
             :key="index"
             :class="{ active: activeSlide === index }"
             type="button"
@@ -194,7 +156,7 @@ onBeforeUnmount(() => window.clearInterval(slideTimer))
 
       <div class="category-grid">
         <button
-          v-for="category in categories"
+          v-for="category in PLACE_CATEGORIES"
           :key="category"
           class="category-tile"
           :class="{ selected: form.interests.includes(category) }"
@@ -213,7 +175,7 @@ onBeforeUnmount(() => window.clearInterval(slideTimer))
         </div>
         <div class="keyword-chip-row">
           <button
-            v-for="keyword in suggestedKeywords"
+            v-for="keyword in SUGGESTED_KEYWORDS"
             :key="keyword"
             :class="{ selected: isKeywordSelected(keyword) }"
             type="button"
@@ -276,13 +238,13 @@ onBeforeUnmount(() => window.clearInterval(slideTimer))
         <label>
           여행 스타일
           <select v-model="form.travelStyle">
-            <option v-for="style in travelStyles" :key="style">{{ style }}</option>
+            <option v-for="style in TRAVEL_STYLES" :key="style">{{ style }}</option>
           </select>
         </label>
         <label>
           동행 유형
           <select v-model="form.companionType">
-            <option v-for="type in companionTypes" :key="type">{{ type }}</option>
+            <option v-for="type in COMPANION_TYPES" :key="type">{{ type }}</option>
           </select>
         </label>
         <p v-if="error" class="form-error">{{ error }}</p>

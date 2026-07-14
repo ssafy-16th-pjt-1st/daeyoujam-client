@@ -9,6 +9,7 @@ import CategoryChips from '../components/place/CategoryChips.vue'
 import PlaceCard from '../components/place/PlaceCard.vue'
 import { fetchPlaces, searchPlaces } from '../api/places'
 import { fetchRecommendations, fetchRecommendedPosts } from '../api/recommendations'
+import { HOME_HERO_SLIDES } from '../constants/slides'
 import { useProfileStore } from '../stores/profile'
 
 const profileStore = useProfileStore()
@@ -21,33 +22,6 @@ const error = ref('')
 const activeSlide = ref(0)
 let slideTimer
 
-const heroSlides = [
-  {
-    eyebrow: '대전 대표 맛',
-    title: '성심당 들렀다가 어디 갈까요?',
-    description: '빵지순례부터 산책 코스까지, 오늘의 대전 코스를 가볍게 추천해드릴게요.',
-    image: '/assets/hero-croissant-3d.png',
-    imageAlt: '3D 크로와상',
-    theme: 'croissant'
-  },
-  {
-    eyebrow: '대전 야경 산책',
-    title: '엑스포 과학공원에서 시작하는 하루',
-    description: '한빛탑, 갑천, 유성까지 사진 찍기 좋은 장소를 취향에 맞춰 이어보세요.',
-    image: '/assets/hero-daejeon-expo.png',
-    imageAlt: '대전 엑스포 과학공원 한빛탑',
-    theme: 'photo'
-  },
-  {
-    eyebrow: '로컬 클래식',
-    title: '1956년부터 이어진 대전의 맛',
-    description: '성심당을 중심으로 근처 카페와 문화시설, 산책 코스를 함께 찾아보세요.',
-    image: '/assets/hero-sungsimdang.png',
-    imageAlt: '성심당 로고',
-    theme: 'brand'
-  }
-]
-
 const mockPlaces = [
   { id: 1, title: '한밭수목원', content_type: '관광지', addr1: '대전광역시 서구', average_rating: 0, review_count: 0, recommendation_reason: '산책과 사진 촬영 취향에 잘 맞는 넓은 녹지 공간이에요.' },
   { id: 2, title: '성심당 본점', content_type: '음식점', addr1: '대전광역시 중구', average_rating: 0, review_count: 0, recommendation_reason: '대전 여행에서 빠지기 어려운 대표 맛집이에요.' }
@@ -55,7 +29,7 @@ const mockPlaces = [
 
 const profile = computed(() => profileStore.profile || {})
 const filteredPlaces = computed(() => places.value)
-const currentSlide = computed(() => heroSlides[activeSlide.value])
+const currentSlide = computed(() => HOME_HERO_SLIDES[activeSlide.value])
 
 function goToSlide(index) {
   activeSlide.value = index
@@ -63,7 +37,7 @@ function goToSlide(index) {
 }
 
 function nextSlide() {
-  activeSlide.value = (activeSlide.value + 1) % heroSlides.length
+  activeSlide.value = (activeSlide.value + 1) % HOME_HERO_SLIDES.length
 }
 
 function restartSlideTimer() {
@@ -148,7 +122,7 @@ onBeforeUnmount(() => window.clearInterval(slideTimer))
 
       <div class="hero-dots" aria-label="배너 선택">
         <button
-          v-for="(_, index) in heroSlides"
+          v-for="(_, index) in HOME_HERO_SLIDES"
           :key="index"
           :class="{ active: activeSlide === index }"
           type="button"

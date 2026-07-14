@@ -1,31 +1,19 @@
 <script setup>
+import { DAEYUJAM_PLACEHOLDER_IMAGE } from '../../constants/images'
+
 const props = defineProps({
   place: { type: Object, required: true }
 })
 
-const placeholder =
-  'data:image/svg+xml;utf8,' +
-  encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-    <rect width="640" height="420" fill="#ffffff"/>
-    <g transform="translate(216 154)">
-      <rect x="0" y="0" width="72" height="72" rx="22" fill="#ff385c" transform="rotate(-6 36 36)"/>
-      <text x="36" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="45" font-weight="900" fill="#ffffff">대</text>
-      <circle cx="75" cy="71" r="16" fill="#ffffff" stroke="#ff385c" stroke-width="5"/>
-      <text x="75" y="79" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#ff385c">전</text>
-      <text x="128" y="54" font-family="Arial, sans-serif" font-size="45" font-weight="900" fill="#222222">유잼</text>
-    </g>
-  </svg>`)
-
 function onImageError(event) {
-  event.target.src = placeholder
+  event.target.src = DAEYUJAM_PLACEHOLDER_IMAGE
 }
 </script>
 
 <template>
   <RouterLink class="place-card" :to="`/map/${props.place.id}`">
     <img
-      :src="props.place.first_image || props.place.first_image2 || placeholder"
+      :src="props.place.first_image || props.place.first_image2 || DAEYUJAM_PLACEHOLDER_IMAGE"
       :alt="props.place.title"
       @error="onImageError"
     />
