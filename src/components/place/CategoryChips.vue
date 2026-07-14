@@ -17,4 +17,3 @@ const categories = ['전체', '관광지', '문화시설', '축제공연행사',
     </button>
   </div>
 </template>
-

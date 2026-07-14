@@ -5,9 +5,9 @@
       <div class="chat-heading">
         <div class="chat-avatar" aria-hidden="true"></div>
         <div>
-          <p class="eyebrow">AI 동네 가이드</p>
+          <p class="eyebrow">AI 대전 가이드</p>
           <h1>대유잼 챗봇</h1>
-          <p class="muted">{{ profileSummary }}를 반영해 대전·충청권 장소 데이터에서 추천해요.</p>
+          <p class="muted">{{ profileSummary }} 정보를 반영해 대전과 충청권 장소를 추천해요.</p>
         </div>
       </div>
 
@@ -34,7 +34,7 @@
             </div>
           </article>
           <div v-if="loading" class="chat-turn bot">
-            <div class="chat-message">장소 데이터를 검색하고 추천 근거를 정리하고 있어요.</div>
+            <div class="chat-message">장소 데이터를 살펴보고 추천 이유를 정리하고 있어요.</div>
           </div>
         </div>
 
@@ -44,7 +44,7 @@
           <input
             v-model="draft"
             :disabled="loading"
-            placeholder="예: 유성구에서 친구랑 갈 만한 실내 문화시설 추천해줘"
+            placeholder="예: 유성구에서 친구와 갈 만한 실내 문화시설 추천해줘"
           />
           <button type="submit" :disabled="loading || !draft.trim()">전송</button>
         </form>
@@ -70,9 +70,8 @@ const placeholder =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-    <rect width="640" height="420" fill="#f7f7f5"/>
-    <text x="320" y="214" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="800" fill="#d83b18">대유잼</text>
-    <text x="266" y="232" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#008b72">전</text>
+    <rect width="640" height="420" fill="#ffe500"/>
+    <text x="320" y="215" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="800" fill="#111">대유잼</text>
   </svg>`)
 
 const profile = computed(() => profileStore.profile || {})
@@ -81,14 +80,14 @@ const profileSummary = computed(() => {
   if (profile.value.district) parts.push(profile.value.district)
   if (profile.value.ageGroup) parts.push(profile.value.ageGroup)
   if (profile.value.interests?.length) parts.push(profile.value.interests.join(', '))
-  return parts.length ? parts.join(' · ') : '사용자 정보'
+  return parts.length ? parts.join(' · ') : '사용자'
 })
 
 const messages = ref([
   {
     id: crypto.randomUUID(),
     role: 'bot',
-    text: '궁금한 지역, 분위기, 동행 유형을 알려주면 내 프로필과 장소 데이터를 함께 보고 추천해드릴게요.',
+    text: '궁금한 지역, 분위기, 동행 유형을 알려주면 대전 로컬 장소 데이터를 함께 보고 추천해드릴게요.',
     places: []
   }
 ])

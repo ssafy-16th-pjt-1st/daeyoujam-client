@@ -2,8 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-import AppHeader from '../components/common/AppHeader.vue'
 import { createComment, deleteComment, fetchComments, fetchPost } from '../api/posts'
+import AppHeader from '../components/common/AppHeader.vue'
 import { useProfileStore } from '../stores/profile'
 
 const route = useRoute()
@@ -52,8 +52,8 @@ async function removeComment(comment) {
       <h1>{{ post.title }}</h1>
       <p>{{ post.content }}</p>
       <div class="button-row">
-        <button type="button">수정</button>
-        <button type="button">삭제</button>
+        <button class="outline-button" type="button">수정</button>
+        <button class="outline-button" type="button">삭제</button>
       </div>
     </article>
     <section class="article-card">

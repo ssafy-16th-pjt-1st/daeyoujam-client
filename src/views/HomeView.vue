@@ -20,12 +20,13 @@ const loading = ref(false)
 const error = ref('')
 
 const mockPlaces = [
-  { id: 1, title: '장태산자연휴양림', content_type: '관광지', addr1: '대전광역시 서구', average_rating: 0, review_count: 0, recommendation_reason: '관광지 관심사를 반영한 예시 추천이에요.' },
-  { id: 2, title: '성심당 본점', content_type: '음식점', addr1: '대전광역시 중구', average_rating: 0, review_count: 0, recommendation_reason: '음식점 관심사를 반영한 예시 추천이에요.' }
+  { id: 1, title: '한밭수목원', content_type: '관광지', addr1: '대전광역시 서구', average_rating: 0, review_count: 0, recommendation_reason: '산책과 사진 촬영 취향에 잘 맞는 넓은 녹지 공간이에요.' },
+  { id: 2, title: '성심당 본점', content_type: '음식점', addr1: '대전광역시 중구', average_rating: 0, review_count: 0, recommendation_reason: '대전 여행에서 빠지기 어려운 대표 맛집이에요.' }
 ]
 
 const profile = computed(() => profileStore.profile || {})
 const filteredPlaces = computed(() => places.value)
+const interestText = computed(() => (profile.value.interests || []).join(', ') || '대전 로컬')
 
 async function loadPlaces() {
   loading.value = true
@@ -45,7 +46,7 @@ async function loadPlaces() {
         : await fetchPlaces({ category, size: 12 })
     places.value = response.items
   } catch {
-    error.value = 'API 연결 전이라 예시 데이터를 표시합니다.'
+    error.value = 'API 연결이 불안정해 예시 데이터를 표시합니다.'
     places.value = mockPlaces
   } finally {
     loading.value = false
@@ -78,19 +79,27 @@ onMounted(() => {
   <AppHeader />
   <main class="app-container page-stack">
     <section class="home-hero">
-      <p class="eyebrow">{{ profile.district }} 기반 추천</p>
-      <h1>{{ profile.nickname }}님, 오늘은 어디가 유잼일까요?</h1>
-      <p>{{ (profile.interests || []).join(', ') }} 관심사와 {{ profile.district }} 생활권을 반영했어요.</p>
-      <form class="search-bar" @submit.prevent="loadPlaces">
-        <input v-model="query" placeholder="장소, 지역, 카테고리를 검색해보세요" />
-        <button type="submit">검색</button>
-      </form>
+      <div class="home-hero-visual" aria-hidden="true">
+        <span class="visual-map"></span>
+        <span class="visual-pin visual-pin-main"></span>
+        <span class="visual-pin visual-pin-sub"></span>
+      </div>
+      <div class="home-hero-copy">
+        <p class="eyebrow">{{ profile.district || '대전' }} 기반 추천</p>
+        <h1>{{ profile.nickname || '여행자' }}님, 오늘은 어디가 유잼일까요?</h1>
+        <p>{{ interestText }} 관심사와 {{ profile.travelStyle || '여행 스타일' }} 스타일을 반영했어요.</p>
+        <form class="search-bar" @submit.prevent="loadPlaces">
+          <input v-model="query" placeholder="장소, 지역, 카테고리를 검색해 보세요" />
+          <button type="submit">검색</button>
+        </form>
+      </div>
     </section>
 
     <section class="tool-strip">
       <CategoryChips v-model="selectedCategory" />
       <RouterLink class="outline-button" to="/map/1">지도로 보기</RouterLink>
     </section>
+
     <p v-if="error" class="notice">{{ error }}</p>
     <LoadingState v-if="loading" />
     <EmptyState v-else-if="!filteredPlaces.length" />
@@ -98,13 +107,13 @@ onMounted(() => {
       <PlaceCard v-for="place in filteredPlaces" :key="place.id" :place="place" />
     </section>
 
-    <section class="section-card">
+    <section class="section-card feature-section">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">개인화 게시물</p>
-          <h2>지금 보면 좋은 동네 이야기</h2>
+          <p class="eyebrow">Board</p>
+          <h2>지금 보면 좋은 대전 이야기</h2>
         </div>
-        <RouterLink to="/board">전체 보기</RouterLink>
+        <RouterLink class="text-link" to="/board">전체 보기</RouterLink>
       </div>
       <div v-if="posts.length" class="post-grid">
         <RouterLink v-for="post in posts" :key="post.id" class="post-card" :to="`/board/${post.id}`">
