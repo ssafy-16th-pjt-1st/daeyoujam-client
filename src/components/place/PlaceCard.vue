@@ -7,11 +7,14 @@ const placeholder =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-    <rect width="640" height="420" fill="#ffe500"/>
-    <path d="M115 282c62-98 128-136 199-112 96 32 134-58 217-24 53 22 69 77 36 125-40 58-126 72-240 72-98 0-170-20-212-61z" fill="#62f08d" stroke="#111" stroke-width="7"/>
-    <circle cx="266" cy="210" r="55" fill="#ff91cb" stroke="#111" stroke-width="7"/>
-    <rect x="342" y="185" width="122" height="92" rx="18" fill="#1f7aff" stroke="#111" stroke-width="7"/>
-    <text x="320" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="800" fill="#111">대유잼</text>
+    <rect width="640" height="420" fill="#ffffff"/>
+    <g transform="translate(216 154)">
+      <rect x="0" y="0" width="72" height="72" rx="22" fill="#ff385c" transform="rotate(-6 36 36)"/>
+      <text x="36" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="45" font-weight="900" fill="#ffffff">대</text>
+      <circle cx="75" cy="71" r="16" fill="#ffffff" stroke="#ff385c" stroke-width="5"/>
+      <text x="75" y="79" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#ff385c">전</text>
+      <text x="128" y="54" font-family="Arial, sans-serif" font-size="45" font-weight="900" fill="#222222">유잼</text>
+    </g>
   </svg>`)
 
 function onImageError(event) {

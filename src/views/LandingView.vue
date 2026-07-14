@@ -1,18 +1,25 @@
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { saveUser } from '../api/users'
+import AppLogo from '../components/common/AppLogo.vue'
 import { useProfileStore } from '../stores/profile'
 
 const router = useRouter()
 const profileStore = useProfileStore()
 const error = ref('')
+const activeSlide = ref(0)
+let slideTimer
+
+const landingSlides = [
+  { image: '/assets/landing-daejeon-night.png', alt: '대전 엑스포 일대 야경' },
+  { image: '/assets/landing-sky-road.png', alt: '대전 스카이로드' },
+  { image: '/assets/landing-bakery.png', alt: '성심당 베이커리 진열대' }
+]
 
 const REGION_DATA = {
-  대전광역시: {
-    대전광역시: ['동구', '중구', '서구', '유성구', '대덕구']
-  },
+  대전광역시: { 대전광역시: ['동구', '중구', '서구', '유성구', '대덕구'] },
   충청북도: {
     청주시: ['상당구', '서원구', '흥덕구', '청원구'],
     충주시: [],
@@ -43,12 +50,11 @@ const REGION_DATA = {
     예산군: [],
     태안군: []
   },
-  세종특별자치시: {
-    세종특별자치시: []
-  }
+  세종특별자치시: { 세종특별자치시: [] }
 }
 
 const categories = ['관광지', '문화시설', '축제공연행사', '여행코스', '레포츠', '숙박', '쇼핑', '음식점']
+const suggestedKeywords = ['성심당', '카페', '야경', '산책', '전시', '빵지순례', '데이트', '아이와 함께', '비 오는 날']
 const travelStyles = ['느긋한 산책', '맛집 탐방', '문화생활', '사진 촬영', '액티비티', '축제', '쇼핑', '가족 나들이', '무관']
 const companionTypes = ['혼자', '친구', '연인', '가족', '아이 동반', '반려동물', '무관']
 
@@ -65,14 +71,48 @@ const form = reactive({
   nickname: ''
 })
 
+const currentSlide = computed(() => landingSlides[activeSlide.value])
 const provinceOptions = computed(() => Object.keys(REGION_DATA))
 const cityOptions = computed(() => Object.keys(REGION_DATA[form.province] || {}))
 const districtOptions = computed(() => REGION_DATA[form.province]?.[form.city] || [])
+
+function nextSlide() {
+  activeSlide.value = (activeSlide.value + 1) % landingSlides.length
+}
+
+function goToSlide(index) {
+  activeSlide.value = index
+  restartSlideTimer()
+}
+
+function restartSlideTimer() {
+  window.clearInterval(slideTimer)
+  slideTimer = window.setInterval(nextSlide, 4000)
+}
 
 function toggleCategory(category) {
   const index = form.interests.indexOf(category)
   if (index >= 0) form.interests.splice(index, 1)
   else form.interests.push(category)
+}
+
+function selectedKeywords() {
+  return form.preferredKeywordsText
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function isKeywordSelected(keyword) {
+  return selectedKeywords().includes(keyword)
+}
+
+function toggleKeyword(keyword) {
+  const keywords = selectedKeywords()
+  const index = keywords.indexOf(keyword)
+  if (index >= 0) keywords.splice(index, 1)
+  else keywords.push(keyword)
+  form.preferredKeywordsText = keywords.join(', ')
 }
 
 function syncProvince() {
@@ -121,23 +161,35 @@ async function submit() {
   }
   router.push('/home')
 }
+
+onMounted(restartSlideTimer)
+onBeforeUnmount(() => window.clearInterval(slideTimer))
 </script>
 
 <template>
   <main class="landing-shell">
     <section class="onboarding-card landing-card">
       <div class="landing-intro">
-        <p class="eyebrow daeyoujam-logo logo-large">
-          <span class="logo-dae">대<span class="logo-jeon">전</span></span><span>유잼</span>
-        </p>
-        <h1>오늘의 대전을 취향대로 골라보세요.</h1>
-        <p class="lead">관심사, 사는 곳, 동행 스타일을 저장하면 대전과 충청권 장소 추천부터 AI 챗봇, 게시판까지 이어서 사용할 수 있어요.</p>
+        <AppLogo to="/" />
+        <h2>사용자님의 정보를 통해<br />AI 추천이 가능해요.</h2>
+        <p class="lead">사는 곳과 관심사를 알려주면 대전에서 가볼 만한 장소를 더 정확하게 추천해드릴게요.</p>
       </div>
 
-      <div class="landing-visual" aria-hidden="true">
-        <span class="visual-map"></span>
-        <span class="visual-pin visual-pin-main"></span>
-        <span class="visual-pin visual-pin-sub"></span>
+      <div class="landing-banner" aria-label="대전 추천 배너">
+        <div class="landing-banner-media">
+          <transition name="hero-fade" mode="out-in">
+            <img :key="currentSlide.image" :src="currentSlide.image" :alt="currentSlide.alt" />
+          </transition>
+        </div>
+        <div class="hero-dots landing-dots" aria-label="랜딩 배너 선택">
+          <button
+            v-for="(_, index) in landingSlides"
+            :key="index"
+            :class="{ active: activeSlide === index }"
+            type="button"
+            @click="goToSlide(index)"
+          ></button>
+        </div>
       </div>
 
       <div class="category-grid">
@@ -153,6 +205,24 @@ async function submit() {
           <span>추천에 반영</span>
         </button>
       </div>
+
+      <section class="keyword-suggestions" aria-label="추천 키워드">
+        <div>
+          <strong>추천 키워드</strong>
+          <p>관심 있는 키워드를 눌러 빠르게 추가해 보세요.</p>
+        </div>
+        <div class="keyword-chip-row">
+          <button
+            v-for="keyword in suggestedKeywords"
+            :key="keyword"
+            :class="{ selected: isKeywordSelected(keyword) }"
+            type="button"
+            @click="toggleKeyword(keyword)"
+          >
+            {{ keyword }}
+          </button>
+        </div>
+      </section>
 
       <form class="profile-form" @submit.prevent="submit">
         <label>
@@ -199,7 +269,7 @@ async function submit() {
           닉네임
           <input v-model="form.nickname" placeholder="예: 유성산책러" />
         </label>
-        <label>
+        <label class="profile-form-wide">
           선호 키워드
           <input v-model="form.preferredKeywordsText" placeholder="예: 카페, 야경, 산책" />
         </label>

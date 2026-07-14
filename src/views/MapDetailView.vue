@@ -2,8 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-import AppHeader from '../components/common/AppHeader.vue'
 import { fetchPlace } from '../api/places'
+import AppHeader from '../components/common/AppHeader.vue'
 
 const route = useRoute()
 const place = ref(null)
@@ -12,9 +12,14 @@ const placeholder =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
-    <rect width="900" height="520" fill="#f7f7f5"/>
-    <text x="450" y="266" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#d83b18">대유잼</text>
-    <text x="374" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="800" fill="#008b72">전</text>
+    <rect width="900" height="520" fill="#ffffff"/>
+    <g transform="translate(330 190)">
+      <rect x="0" y="0" width="86" height="86" rx="26" fill="#ff385c" transform="rotate(-6 43 43)"/>
+      <text x="43" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="900" fill="#ffffff">대</text>
+      <circle cx="90" cy="85" r="19" fill="#ffffff" stroke="#ff385c" stroke-width="6"/>
+      <text x="90" y="94" text-anchor="middle" font-family="Arial, sans-serif" font-size="19" font-weight="900" fill="#ff385c">전</text>
+      <text x="153" y="65" font-family="Arial, sans-serif" font-size="54" font-weight="900" fill="#222222">유잼</text>
+    </g>
   </svg>`)
 
 onMounted(async () => {
@@ -46,7 +51,7 @@ onMounted(async () => {
         <p class="rating">별점 {{ place.average_rating }} · 리뷰 {{ place.review_count }}</p>
         <section class="ai-briefing">
           <strong>AI 리뷰 브리핑</strong>
-          <p>리뷰 요약 기능은 다음 단계에서 백엔드 AI API와 연결됩니다.</p>
+          <p>리뷰 요약 기능은 다음 단계에서 백엔드 AI API와 연결합니다.</p>
         </section>
         <section>
           <h2>리뷰</h2>
