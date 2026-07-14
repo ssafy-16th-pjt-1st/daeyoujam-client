@@ -1,41 +1,42 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 
-import { fetchPlace } from '../api/places'
-import AppHeader from '../components/common/AppHeader.vue'
-import { DAEYUJAM_PLACEHOLDER_IMAGE } from '../constants/images'
+import { fetchPlace } from "../api/places";
+import AppHeader from "../components/common/AppHeader.vue";
+import { DAEYUJAM_PLACEHOLDER_IMAGE } from "../constants/images";
 
-const route = useRoute()
-const place = ref(null)
-const error = ref('')
+const route = useRoute();
+const place = ref(null);
+const error = ref("");
 
 onMounted(async () => {
   try {
-    place.value = await fetchPlace(route.params.placeId)
+    place.value = await fetchPlace(route.params.placeId);
   } catch {
-    error.value = '장소 정보를 불러오지 못했어요.'
+    error.value = "장소 정보를 불러오지 못했어요.";
   }
-})
+});
 </script>
 
 <template>
   <AppHeader />
   <main class="detail-layout">
     <section class="map-panel">
-      <div class="fake-map">
-        <span>지도 영역</span>
-        <small v-if="place">{{ place.mapy }}, {{ place.mapx }}</small>
-      </div>
+      <SinglePlaceMap v-if="place" :content_id="place.content_id" />
     </section>
     <aside class="detail-panel">
       <p v-if="error" class="notice">{{ error }}</p>
       <template v-if="place">
-        <img class="detail-image" :src="place.first_image || place.first_image2 || DAEYUJAM_PLACEHOLDER_IMAGE" :alt="place.title" />
+        <img
+          class="detail-image"
+          :src="place.first_image || place.first_image2 || DAEYUJAM_PLACEHOLDER_IMAGE"
+          :alt="place.title"
+        />
         <p class="meta">{{ place.content_type }}</p>
         <h1>{{ place.title }}</h1>
-        <p>{{ place.addr1 || '주소 정보 없음' }} {{ place.addr2 || '' }}</p>
-        <p>{{ place.tel || '전화번호 정보 없음' }}</p>
+        <p>{{ place.addr1 || "주소 정보 없음" }} {{ place.addr2 || "" }}</p>
+        <p>{{ place.tel || "전화번호 정보 없음" }}</p>
         <p class="rating">별점 {{ place.average_rating }} · 리뷰 {{ place.review_count }}</p>
         <section class="ai-briefing">
           <strong>AI 리뷰 브리핑</strong>

@@ -37,6 +37,14 @@
     border-left: 0;
     border-top: 1px solid var(--color-border);
   }
+
+  .single-place-map {
+    min-height: 420px;
+  }
+
+  .map-canvas {
+    min-height: 420px;
+  }
 }
 
 @media (max-width: 767px) {
@@ -204,6 +212,14 @@
   }
 
   .fake-map {
+    min-height: 40vh;
+  }
+
+  .single-place-map {
+    padding: 0;
+  }
+
+  .map-canvas {
     min-height: 40vh;
   }
 }
