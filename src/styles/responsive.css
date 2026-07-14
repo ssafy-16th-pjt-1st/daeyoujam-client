@@ -26,6 +26,7 @@
   .profile-form,
   .place-grid,
   .post-grid,
+  .chat-place-grid,
   .comment-form {
     grid-template-columns: 1fr;
   }
@@ -51,8 +52,19 @@
     flex-direction: column;
   }
 
+  .chat-place-card,
+  .chat-input-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-place-card img {
+    min-height: 180px;
+    aspect-ratio: 16 / 9;
+  }
+
   .search-bar button,
-  .primary-button {
+  .primary-button,
+  .chat-input-bar button {
     width: 100%;
   }
 
