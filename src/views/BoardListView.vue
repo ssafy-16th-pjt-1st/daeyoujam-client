@@ -2,8 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
-import AppHeader from '../components/common/AppHeader.vue'
 import { fetchPosts } from '../api/posts'
+import AppHeader from '../components/common/AppHeader.vue'
 
 const posts = ref([])
 const q = ref('')
@@ -26,13 +26,13 @@ onMounted(loadPosts)
   <main class="app-container page-stack">
     <section class="board-head">
       <div>
-        <p class="eyebrow">동네 이야기</p>
-        <h1>대유잼 게시판</h1>
+        <p class="eyebrow">대전 유잼 게시판</p>
+        <h1>동네 이야기를 모아봐요.</h1>
       </div>
       <RouterLink class="primary-link" to="/board/new">글쓰기</RouterLink>
     </section>
     <form class="search-bar" @submit.prevent="loadPosts">
-      <input v-model="q" placeholder="게시글 제목 검색" />
+      <input v-model="q" placeholder="게시글 제목을 검색하세요" />
       <button type="submit">검색</button>
     </form>
     <p v-if="error" class="notice">{{ error }}</p>
