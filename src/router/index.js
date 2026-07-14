@@ -6,11 +6,13 @@ import BoardListView from '../views/BoardListView.vue'
 import HomeView from '../views/HomeView.vue'
 import LandingView from '../views/LandingView.vue'
 import MapDetailView from '../views/MapDetailView.vue'
+import MapListView from '../views/MapListView.vue'
 import ChatView from '../views/ChatView.vue'
 
 const routes = [
   { path: '/', name: 'landing', component: LandingView },
   { path: '/home', name: 'home', component: HomeView },
+  { path: '/map-list', name: 'map-list', component: MapListView },
   { path: '/map/:placeId', name: 'map-detail', component: MapDetailView },
   { path: '/chat', name: 'chat', component: ChatView },
   { path: '/board', name: 'board-list', component: BoardListView },
