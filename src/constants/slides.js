@@ -17,8 +17,8 @@ export const HOME_HERO_SLIDES = [
     eyebrow: '대전 야경 산책',
     title: '엑스포 과학공원에서 시작하는 하루',
     description: '한빛탑, 갑천, 유성까지 사진 찍기 좋은 장소를 취향에 맞춰 이어보세요.',
-    image: '/assets/hero-daejeon-expo.png',
-    imageAlt: '대전 엑스포 과학공원 한빛탑',
+    image: '/assets/hero-dlight-daejeon.png',
+    imageAlt: 'D-라이트 대전 야경',
     theme: 'photo'
   },
   {
