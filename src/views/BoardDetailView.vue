@@ -1,91 +1,126 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-import { createComment, deleteComment, fetchComments, fetchPostWithParams, deletePost, togglePostLike } from '../api/posts'
-import AppHeader from '../components/common/AppHeader.vue'
-import { useProfileStore } from '../stores/profile'
+import {
+  createComment,
+  deleteComment,
+  deletePost,
+  fetchComments,
+  fetchPostWithParams,
+  togglePostLike,
+  verifyPostPassword,
+} from "../api/posts";
+import AppHeader from "../components/common/AppHeader.vue";
+import { useNotificationStore } from "../stores/notification";
+import { useProfileStore } from "../stores/profile";
 
-const route = useRoute()
-const router = useRouter()
-const profileStore = useProfileStore()
-const post = ref(null)
-const comments = ref([])
-const error = ref('')
-const commentForm = ref({ content: '', edit_password: '' })
+const route = useRoute();
+const router = useRouter();
+const profileStore = useProfileStore();
+const notificationStore = useNotificationStore();
 
-onMounted(async () => {
+const post = ref(null);
+const comments = ref([]);
+const error = ref("");
+const commentForm = ref({ content: "", edit_password: "" });
+
+function notifySuccess(message, title = "완료되었습니다") {
+  notificationStore.show({ title, message, tone: "success" });
+}
+
+function notifyError(message, title = "처리하지 못했습니다") {
+  notificationStore.show({ title, message, tone: "error" });
+}
+
+async function loadPostDetail() {
   try {
-    post.value = await fetchPostWithParams(route.params.postId, { guest_id: profileStore.profile?.guestId })
-    comments.value = await fetchComments(route.params.postId)
+    post.value = await fetchPostWithParams(route.params.postId, {
+      guest_id: profileStore.profile?.guestId,
+    });
+    comments.value = await fetchComments(route.params.postId);
   } catch {
-    error.value = '게시글을 불러오지 못했어요.'
+    error.value = "게시글을 불러오지 못했습니다.";
   }
-})
+}
 
 async function removePost() {
-  const password = window.prompt('삭제 비밀번호를 입력해 주세요.')
-  if (!password) return
+  const password = window.prompt("삭제 비밀번호를 입력해 주세요.");
+  if (!password) return;
+
   try {
-    await deletePost(route.params.postId, password)
-    window.alert('삭제되었습니다.')
-    router.push('/board') // 홈으로 이동
+    await deletePost(route.params.postId, password);
+    notifySuccess("게시글이 삭제되었습니다.");
+    router.push("/board");
   } catch {
-    window.alert('비밀번호가 일치하지 않거나 삭제할 수 없어요.')
+    notifyError("비밀번호가 일치하지 않거나 삭제할 수 없습니다.");
   }
 }
 
 async function toggleLike() {
-  if (!profileStore.profile?.guestId || !post.value) return
-  const result = await togglePostLike(post.value.id, profileStore.profile.guestId)
-  post.value.like_count = result.like_count
-  post.value.liked_by_viewer = result.liked_by_viewer
-}
+  if (!post.value) return;
 
-// --- 추가된 수정 페이지 이동 로직 ---
-function goToEdit() {
-  const password = window.prompt('수정 비밀번호를 입력해 주세요.')
-  if (!password) return // 취소 버튼을 누르면 종료
+  if (!profileStore.profile?.guestId) {
+    notifyError("닉네임을 먼저 등록해 주세요.");
+    return;
+  }
 
   try {
-    // 1. 비밀번호가 맞는지 확인하는 API가 따로 있다면 호출하거나,
-    // 2. 혹은 바로 페이지로 넘기면서 비밀번호를 넘겨줍니다. (보안상 권장: 비밀번호 검증 API 호출)
-    
-    // 예시: 간단하게 검증 API를 호출한다고 가정
-    // await verifyPassword(route.params.postId, password) 
-    
-    // 검증 통과 시 페이지 이동
-    router.push(`/board/${route.params.postId}/edit`)
+    const result = await togglePostLike(post.value.id, profileStore.profile.guestId);
+    post.value.like_count = result.like_count;
+    post.value.liked_by_viewer = result.liked_by_viewer;
   } catch {
-    alert('비밀번호가 일치하지 않습니다.')
+    notifyError("좋아요를 처리하지 못했습니다.");
+  }
+}
+
+async function goToEdit() {
+  const password = window.prompt("수정 비밀번호를 입력해 주세요.");
+  if (!password) return;
+
+  try {
+    await verifyPostPassword(route.params.postId, password);
+    router.push(`/board/${route.params.postId}/edit`);
+  } catch {
+    notifyError("비밀번호가 일치하지 않습니다.");
   }
 }
 
 async function submitComment() {
-  const comment = await createComment(route.params.postId, {
-    nickname: profileStore.nickname,
-    ...commentForm.value
-  })
-  comments.value.push(comment)
-  commentForm.value = { content: '', edit_password: '' }
+  try {
+    const comment = await createComment(route.params.postId, {
+      nickname: profileStore.nickname,
+      ...commentForm.value,
+    });
+    comments.value.push(comment);
+    commentForm.value = { content: "", edit_password: "" };
+    notifySuccess("댓글이 등록되었습니다.");
+  } catch {
+    notifyError("댓글 내용과 비밀번호를 확인해 주세요.");
+  }
 }
 
 async function removeComment(comment) {
-  const password = window.prompt('댓글 삭제 비밀번호를 입력해 주세요.')
-  if (!password) return
+  const password = window.prompt("댓글 삭제 비밀번호를 입력해 주세요.");
+  if (!password) return;
+
   try {
-    await deleteComment(route.params.postId, comment.id, password)
-    comments.value = comments.value.filter((item) => item.id !== comment.id)
+    await deleteComment(route.params.postId, comment.id, password);
+    comments.value = comments.value.filter((item) => item.id !== comment.id);
+    notifySuccess("댓글이 삭제되었습니다.");
   } catch {
-    window.alert('비밀번호가 일치하지 않거나 삭제할 수 없어요.')
+    notifyError("비밀번호가 일치하지 않거나 삭제할 수 없습니다.");
   }
 }
+
+onMounted(loadPostDetail);
 </script>
 
 <template>
   <AppHeader />
   <main class="app-container page-stack">
     <p v-if="error" class="notice">{{ error }}</p>
+
     <article v-if="post" class="article-card">
       <p class="eyebrow">{{ post.category }} · {{ post.nickname }} · 조회 {{ post.view_count }}</p>
       <h1>{{ post.title }}</h1>
@@ -105,6 +140,7 @@ async function removeComment(comment) {
         <button class="outline-button" type="button" @click="removePost">삭제</button>
       </div>
     </article>
+
     <section class="article-card">
       <h2>댓글</h2>
       <div v-for="comment in comments" :key="comment.id" class="comment-row">
@@ -114,9 +150,10 @@ async function removeComment(comment) {
         </div>
         <button class="text-button" type="button" @click="removeComment(comment)">삭제</button>
       </div>
+
       <form class="comment-form" @submit.prevent="submitComment">
         <span class="comment-author">{{ profileStore.nickname }}</span>
-        <input v-model="commentForm.content" required placeholder="댓글을 입력하세요" />
+        <input v-model="commentForm.content" required placeholder="댓글을 입력하세요." />
         <input v-model="commentForm.edit_password" required type="password" placeholder="비밀번호" />
         <button class="primary-button" type="submit">댓글 작성</button>
       </form>

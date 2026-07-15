@@ -51,3 +51,10 @@ export async function togglePostLike(postId, guestId) {
   const { data } = await http.post(`/api/v1/posts/${postId}/likes`, { guest_id: guestId });
   return data;
 }
+
+export async function verifyPostPassword(postId, editPassword) {
+  const { data } = await http.post(`/api/v1/posts/${postId}/verify`, {
+    edit_password: editPassword,
+  });
+  return data;
+}

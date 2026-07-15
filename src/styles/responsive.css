@@ -28,11 +28,13 @@
 
   .airbnb-hero {
     grid-template-columns: 1fr;
+    height: 620px;
   }
 
   .hero-stage {
     order: -1;
-    min-height: 330px;
+    height: 330px;
+    min-height: 0;
   }
 
   .place-grid {
@@ -145,7 +147,7 @@
   }
 
   .airbnb-hero {
-    min-height: 0;
+    height: 560px;
     padding: 18px;
     border-radius: 20px;
     overflow: hidden;
@@ -183,7 +185,8 @@
   }
 
   .hero-stage {
-    min-height: 260px;
+    height: 260px;
+    min-height: 0;
     border-radius: 18px;
   }
 
@@ -481,7 +484,8 @@
   }
 
   .hero-stage {
-    min-height: 220px;
+    height: 220px;
+    min-height: 0;
   }
 
   .prompt-chip-row {
