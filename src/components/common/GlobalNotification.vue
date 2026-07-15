@@ -22,7 +22,6 @@ const toneLabel = computed(() => {
     >
       <section
         class="notification-modal"
-        :class="`tone-${notificationStore.tone}`"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="global-notification-title"

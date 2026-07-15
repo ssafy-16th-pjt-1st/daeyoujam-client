@@ -16,10 +16,14 @@ const selectedCategory = ref("전체");
 const query = ref("");
 const places = ref([]);
 const posts = ref([]);
+const suggestions = ref([]);
 const loading = ref(false);
+const suggestionLoading = ref(false);
+const searchFocused = ref(false);
 const error = ref("");
 const activeSlide = ref(0);
 let slideTimer;
+let suggestionTimer;
 
 const mockPlaces = [
   {
@@ -86,6 +90,42 @@ async function loadPlaces() {
   }
 }
 
+async function loadSearchSuggestions() {
+  const keyword = query.value.trim();
+  if (!keyword) {
+    suggestions.value = [];
+    return;
+  }
+  const category = selectedCategory.value === "전체" ? undefined : selectedCategory.value;
+  suggestionLoading.value = true;
+  try {
+    const response = await searchPlaces({ q: keyword, category, size: 6 });
+    suggestions.value = response.items || [];
+  } catch {
+    suggestions.value = [];
+  } finally {
+    suggestionLoading.value = false;
+  }
+}
+
+function scheduleSuggestions() {
+  window.clearTimeout(suggestionTimer);
+  suggestionTimer = window.setTimeout(loadSearchSuggestions, 160);
+}
+
+function selectSuggestion(place) {
+  query.value = place.title;
+  suggestions.value = [];
+  searchFocused.value = false;
+  loadPlaces();
+}
+
+function hideSuggestionsSoon() {
+  window.setTimeout(() => {
+    searchFocused.value = false;
+  }, 140);
+}
+
 async function loadPosts() {
   try {
     const response = await fetchRecommendedPosts({
@@ -104,12 +144,16 @@ async function loadPosts() {
 }
 
 watch(selectedCategory, loadPlaces);
+watch(query, scheduleSuggestions);
 onMounted(() => {
   loadPlaces();
   loadPosts();
   restartSlideTimer();
 });
-onBeforeUnmount(() => window.clearInterval(slideTimer));
+onBeforeUnmount(() => {
+  window.clearInterval(slideTimer);
+  window.clearTimeout(suggestionTimer);
+});
 </script>
 
 <template>
@@ -121,15 +165,6 @@ onBeforeUnmount(() => window.clearInterval(slideTimer));
         <h1>{{ currentSlide.title }}</h1>
         <p>{{ currentSlide.description }}</p>
 
-        <form class="search-bar search-bar-pill" @submit.prevent="loadPlaces">
-          <label>
-            <span>Where</span>
-            <input v-model="query" placeholder="장소 검색" />
-          </label>
-          <button type="submit" aria-label="검색">
-            <span aria-hidden="true"></span>
-          </button>
-        </form>
       </div>
 
       <div class="hero-stage" :class="`theme-${currentSlide.theme}`">
@@ -147,6 +182,38 @@ onBeforeUnmount(() => window.clearInterval(slideTimer));
           @click="goToSlide(index)"
         ></button>
       </div>
+    </section>
+
+    <section class="home-search-section" aria-label="장소 검색">
+      <form class="search-bar search-bar-pill" @submit.prevent="loadPlaces">
+        <label>
+          <span>Search</span>
+          <input
+            v-model="query"
+            placeholder="원하는 장소를 검색해보세요"
+            autocomplete="off"
+            @focus="searchFocused = true"
+            @blur="hideSuggestionsSoon"
+          />
+        </label>
+        <button type="submit" aria-label="검색">
+          <span aria-hidden="true"></span>
+        </button>
+
+        <div v-if="searchFocused && (suggestions.length || suggestionLoading)" class="search-suggestion-panel">
+          <button
+            v-for="place in suggestions"
+            :key="place.id"
+            type="button"
+            class="search-suggestion-item"
+            @mousedown.prevent="selectSuggestion(place)"
+          >
+            <strong>{{ place.title }}</strong>
+            <span>{{ place.content_type || "장소" }} · {{ place.addr1 || "주소 정보 없음" }}</span>
+          </button>
+          <p v-if="suggestionLoading && !suggestions.length">검색어를 찾는 중이에요.</p>
+        </div>
+      </form>
     </section>
 
     <section class="personal-note">

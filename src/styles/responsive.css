@@ -1,4 +1,18 @@
 @media (max-width: 1023px) {
+  .app-header {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .nav-pill {
+    justify-self: center;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .nav-pill a {
+    flex: 0 0 auto;
+  }
+
   .landing-banner {
     grid-template-columns: 1fr;
     aspect-ratio: 16 / 8;
@@ -14,11 +28,13 @@
 
   .airbnb-hero {
     grid-template-columns: 1fr;
+    height: 620px;
   }
 
   .hero-stage {
     order: -1;
-    min-height: 330px;
+    height: 330px;
+    min-height: 0;
   }
 
   .place-grid {
@@ -36,8 +52,14 @@
     padding: 12px;
   }
 
+  .map-panel,
+  .map-frame {
+    min-height: 420px;
+  }
+
   .map-page {
     grid-template-columns: 1fr;
+    min-height: 0;
   }
 
   .map-canvas {
@@ -65,22 +87,59 @@
   .map-frame .map-canvas {
     min-height: 420px;
   }
+
+  .board-head,
+  .section-heading,
+  .tool-strip {
+    gap: 14px;
+  }
 }
 
 @media (max-width: 767px) {
   .app-container {
-    width: min(100% - 32px, 1180px);
+    width: min(100% - 28px, 1180px);
   }
 
   .app-header {
     grid-template-columns: 1fr auto;
-    padding-inline: 16px;
+    gap: 10px;
+    padding: 10px 14px 12px;
+  }
+
+  .app-header .daeyoujam-logo {
+    font-size: 22px;
+  }
+
+  .logo-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .logo-dae {
+    font-size: 21px;
+  }
+
+  .logo-youjam {
+    font-size: 21px;
   }
 
   .nav-pill {
     order: 3;
     grid-column: 1 / -1;
-    justify-self: center;
+    justify-self: stretch;
+    justify-content: flex-start;
+    padding: 4px;
+    border-radius: 18px;
+    scrollbar-width: none;
+  }
+
+  .nav-pill::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-pill a {
+    min-width: 64px;
+    padding: 8px 12px;
   }
 
   .header-reset {
@@ -88,9 +147,10 @@
   }
 
   .airbnb-hero {
-    min-height: 0;
-    padding: 16px;
+    height: 560px;
+    padding: 18px;
     border-radius: 20px;
+    overflow: hidden;
   }
 
   .landing-shell {
@@ -120,10 +180,13 @@
 
   .hero-copy h1 {
     font-size: 30px;
+    line-height: 1.14;
+    word-break: keep-all;
   }
 
   .hero-stage {
-    min-height: 260px;
+    height: 260px;
+    min-height: 0;
     border-radius: 18px;
   }
 
@@ -133,8 +196,18 @@
   }
 
   .search-bar-pill {
-    grid-template-columns: 1fr 52px;
     border-radius: 28px;
+    width: 100%;
+    max-width: none;
+  }
+
+  .home-search-section {
+    width: 100%;
+    margin-top: -4px;
+  }
+
+  .search-bar-pill label {
+    min-width: 0;
   }
 
   .personal-note {
@@ -155,6 +228,13 @@
     grid-template-columns: 1fr;
   }
 
+  .place-card,
+  .post-card,
+  .section-card,
+  .onboarding-card {
+    border-radius: 16px;
+  }
+
   .keyword-suggestions {
     padding: 16px;
   }
@@ -166,18 +246,52 @@
     flex-direction: column;
   }
 
+  .board-category-filter {
+    scrollbar-width: none;
+  }
+
+  .board-category-filter::-webkit-scrollbar {
+    display: none;
+  }
+
   .floating-chat {
-    top: 96px;
-    right: 16px;
+    top: auto;
+    right: 14px;
+    bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+    width: 58px;
+    min-height: 58px;
+    gap: 0;
   }
 
   .floating-write {
-    right: 16px;
-    bottom: 16px;
+    right: 14px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    min-height: 50px;
+    padding: 0 14px;
+    box-shadow: 0 16px 34px rgba(18, 18, 18, 0.18);
+  }
+
+  .floating-chat-orb {
+    width: 54px;
+    height: 54px;
+  }
+
+  .floating-chat-label {
+    position: absolute;
+    right: 62px;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 96px;
+    padding: 4px 8px;
+    font-size: 11px;
   }
 
   .search-bar {
     flex-direction: column;
+  }
+
+  .search-bar button {
+    min-height: 48px;
   }
 
   .chat-place-card,
@@ -191,16 +305,22 @@
     min-height: 0;
   }
 
+  .chat-container {
+    height: calc(100svh - 108px);
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
   .chat-side-panel {
-    max-height: 34vh;
-    padding: 22px;
+    max-height: 30svh;
+    padding: 18px;
     overflow-y: auto;
     border-right: 0;
     border-bottom: 1px solid var(--color-border-soft);
   }
 
   .chat-side-panel h1 {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .chat-log {
@@ -222,15 +342,23 @@
     aspect-ratio: 16 / 9;
   }
 
-  .search-bar button,
-  .primary-button,
-  .chat-input-bar button {
+  .search-bar:not(.search-bar-pill) button {
     width: 100%;
+  }
+
+  .primary-button {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .chat-input-bar button {
+    width: 52px;
   }
 
   .profile-form .primary-button {
     grid-column: 1;
     justify-self: stretch;
+    width: 100%;
     min-width: 0;
   }
 
@@ -254,13 +382,29 @@
   }
 
   .map-canvas {
-    min-height: 40vh;
+    min-height: 48vh;
   }
 
   .map-frame,
   .map-frame .single-place-map,
   .map-frame .map-canvas {
-    min-height: 40vh;
+    min-height: 48vh;
+  }
+
+  .map-list-panel {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    max-height: 34vh;
+  }
+
+  .place-detail-content {
+    padding: 16px;
+  }
+
+  .place-detail-heading h2 {
+    font-size: 24px;
   }
 
   .detail-summary-strip {
@@ -269,11 +413,19 @@
 
   .detail-section,
   .detail-summary-strip {
-    margin-inline: 16px;
+    margin-inline: 14px;
   }
 
   .detail-hero-body {
-    padding: 18px 16px;
+    padding: 16px 14px;
+  }
+
+  .detail-hero-body h1 {
+    font-size: 25px;
+  }
+
+  .detail-panel {
+    border-radius: 14px;
   }
 
   .review-form-row {
@@ -286,6 +438,131 @@
 
   .review-actions button {
     flex: 1;
+  }
+
+  .comment-row,
+  .review-card-head,
+  .review-card > div:not(.review-card-head):not(.review-actions),
+  .chat-place-topline,
+  .chat-place-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .board-form {
+    padding: 18px;
+  }
+
+  .post-row-top {
+    align-items: flex-start;
+  }
+
+  .board-form .primary-button,
+  .review-form .primary-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .app-header {
+    padding-inline: 12px;
+  }
+
+  .nav-pill a {
+    min-width: 58px;
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+
+  .hero-copy h1,
+  .landing-intro h2 {
+    font-size: 27px;
+  }
+
+  .hero-stage {
+    height: 220px;
+    min-height: 0;
+  }
+
+  .prompt-chip-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .prompt-chip-row button {
+    flex: 0 0 auto;
+  }
+
+  .search-bar-pill {
+    min-height: 64px;
+    padding: 9px 62px 9px 18px;
+  }
+
+  .search-bar-pill input,
+  .search-bar-pill input::placeholder {
+    font-size: 16px;
+  }
+
+  .search-bar-pill > button {
+    right: 7px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+  }
+
+  .search-suggestion-panel {
+    max-height: 280px;
+    border-radius: 16px;
+  }
+
+  .chat-message {
+    max-width: 100%;
+  }
+
+  .chat-place-card {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .chat-place-card img {
+    min-height: 150px;
+  }
+
+  .floating-chat-label {
+    display: none;
+  }
+
+  .floating-chat {
+    width: 54px;
+    min-height: 54px;
+  }
+
+  .floating-chat-orb {
+    width: 52px;
+    height: 52px;
+  }
+
+  .floating-write {
+    min-height: 48px;
+    padding-inline: 13px;
+    font-size: 13px;
+  }
+
+  .map-list-panel {
+    max-height: 30vh;
+    padding: 10px;
+  }
+
+  .notification-backdrop {
+    padding: 16px;
+  }
+
+  .notification-modal {
+    padding: 20px;
   }
 }
 

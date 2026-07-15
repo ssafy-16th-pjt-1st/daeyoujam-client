@@ -10,6 +10,11 @@ export async function fetchPost(postId) {
   return data;
 }
 
+export async function fetchPostWithParams(postId, params = {}) {
+  const { data } = await http.get(`/api/v1/posts/${postId}`, { params });
+  return data;
+}
+
 export async function createPost(payload) {
   const { data } = await http.post("/api/v1/posts", payload);
   return data;
@@ -42,16 +47,14 @@ export async function deletePost(postId, editPassword) {
   });
 }
 
+export async function togglePostLike(postId, guestId) {
+  const { data } = await http.post(`/api/v1/posts/${postId}/likes`, { guest_id: guestId });
+  return data;
+}
+
 export async function verifyPostPassword(postId, editPassword) {
-  console.log("전송 시작, ID:", postId, "비번:", editPassword);
-  try {
-    const response = await http.post(`/api/v1/posts/${postId}/verify`, {
-      edit_password: editPassword, // 백엔드 PostDelete 스키마와 일치해야 함
-    });
-    console.log("서버 응답:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("통신 에러 상세:", error.response?.data || error.message);
-    throw error; // 에러를 호출한 곳(goToEdit)으로 던짐
-  }
+  const { data } = await http.post(`/api/v1/posts/${postId}/verify`, {
+    edit_password: editPassword,
+  });
+  return data;
 }
