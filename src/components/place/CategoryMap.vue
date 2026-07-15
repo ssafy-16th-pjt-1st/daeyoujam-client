@@ -1,64 +1,74 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, shallowRef, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onBeforeUnmount, onMounted, reactive, shallowRef, watch } from "vue";
+import { useRouter } from "vue-router";
 
-import { CATEGORY_LIST, DEFAULT_COLOR, colorOf } from '../../constants/categoryColors'
-import { clusterStyles, getMarkerImage } from '../../utils/markerFactory'
-import { loadKakaoMaps } from '../../utils/kakaoLoader'
+import { CATEGORY_LIST, DEFAULT_COLOR, colorOf } from "../../constants/categoryColors";
+import { clusterStyles, getMarkerImage } from "../../utils/markerFactory";
+import { loadKakaoMaps } from "../../utils/kakaoLoader";
 
 const props = defineProps({
   places: { type: Array, default: () => [] },
-})
+});
 
-const router = useRouter()
+const emit = defineEmits(["visible-change"]);
 
-const mapContainer = shallowRef(null)
-const status = shallowRef('loading') // 'loading' | 'ready' | 'error'
-const errorMessage = shallowRef('')
+const router = useRouter();
+
+const mapContainer = shallowRef(null);
+const status = shallowRef("loading"); // 'loading' | 'ready' | 'error'
+const errorMessage = shallowRef("");
 
 // 범례 표시용 카테고리별 개수 + 표시 여부(작은 객체라 reactive 사용).
-const legend = reactive([])
+const legend = reactive([]);
 
-const allVisible = computed(() => legend.length > 0 && legend.every((item) => item.visible))
+const allVisible = computed(() => legend.length > 0 && legend.every((item) => item.visible));
 
 // kakao 관련 인스턴스는 반응형 추적이 불필요하므로 setup 스코프 변수로 보관한다.
 // (1,300개 배열/마커를 deep watch 하지 않기 위함)
-let kakao = null
-let map = null
+let kakao = null;
+let map = null;
 // content_type -> { color, markers: kakao.maps.Marker[], clusterer }
-const groups = new Map()
+const groups = new Map();
+
+// 현재 표시 중인 카테고리 목록을 부모로 알린다(우측 검색 리스트 필터용).
+function emitVisible() {
+  emit(
+    "visible-change",
+    legend.filter((item) => item.visible).map((item) => item.category),
+  );
+}
 
 // 좌표 파싱은 로드 직후 1회만 수행한다(렌더 루프 밖).
 function buildMarkers() {
-  const grouped = new Map()
+  const grouped = new Map();
 
   for (const place of props.places) {
-    const lng = Number(place.mapx)
-    const lat = Number(place.mapy)
+    const lng = Number(place.mapx);
+    const lat = Number(place.mapy);
     if (Number.isNaN(lat) || Number.isNaN(lng) || lat === 0 || lng === 0) {
-      continue
+      continue;
     }
 
-    const category = CATEGORY_LIST.includes(place.content_type) ? place.content_type : '기타'
-    const color = category === '기타' ? DEFAULT_COLOR : colorOf(category)
-    const image = getMarkerImage(kakao, color)
+    const category = CATEGORY_LIST.includes(place.content_type) ? place.content_type : "기타";
+    const color = category === "기타" ? DEFAULT_COLOR : colorOf(category);
+    const image = getMarkerImage(kakao, color);
 
     const marker = new kakao.maps.Marker({
       position: new kakao.maps.LatLng(lat, lng), // 위도, 경도 순
       image,
       title: place.title,
-    })
-    kakao.maps.event.addListener(marker, 'click', () => {
-      router.push(`/map/${place.id}`)
-    })
+    });
+    kakao.maps.event.addListener(marker, "click", () => {
+      router.push(`/map/${place.id}`);
+    });
 
     if (!grouped.has(category)) {
-      grouped.set(category, { color, markers: [] })
+      grouped.set(category, { color, markers: [] });
     }
-    grouped.get(category).markers.push(marker)
+    grouped.get(category).markers.push(marker);
   }
 
-  return grouped
+  return grouped;
 }
 
 function createClusterers(grouped) {
@@ -71,94 +81,107 @@ function createClusterers(grouped) {
       gridSize: 100, // 저줌에서 확실히 뭉치도록 넉넉히
       disableClickZoom: false,
       styles: clusterStyles(color),
-    })
-    clusterer.addMarkers(markers) // 개별 addMarker 반복 대신 일괄 추가
+    });
+    clusterer.addMarkers(markers); // 개별 addMarker 반복 대신 일괄 추가
 
-    groups.set(category, { color, markers, clusterer })
-    legend.push({ category, color, count: markers.length, visible: true })
+    groups.set(category, { color, markers, clusterer });
+    legend.push({ category, color, count: markers.length, visible: true });
   }
+  emitVisible(); // 초기 표시 상태 통지
 }
 
 function clearClusterers() {
   for (const { clusterer } of groups.values()) {
-    clusterer.clear()
-    clusterer.setMap(null)
+    clusterer.clear();
+    clusterer.setMap(null);
   }
-  groups.clear()
-  legend.splice(0, legend.length)
+  groups.clear();
+  legend.splice(0, legend.length);
 }
 
 // 범례 클릭 = 카테고리 필터. 전량 파괴/재생성 없이 해당 클러스터러만
 // clear() / addMarkers()로 토글한다.
 function setCategoryVisible(item, visible) {
-  const group = groups.get(item.category)
+  const group = groups.get(item.category);
   if (!group || item.visible === visible) {
-    return
+    return;
   }
-  item.visible = visible
+  item.visible = visible;
   if (visible) {
-    group.clusterer.addMarkers(group.markers)
+    group.clusterer.addMarkers(group.markers);
   } else {
-    group.clusterer.clear()
+    group.clusterer.clear();
   }
+  emitVisible(); // 변경 통지
 }
 
 function toggleCategory(item) {
-  setCategoryVisible(item, !item.visible)
+  setCategoryVisible(item, !item.visible);
 }
 
 // 전체 카테고리를 한 번에 켜거나 끈다. 하나라도 꺼져 있으면 전체 켜기로 동작.
 function toggleAll() {
-  const turnOn = legend.some((item) => !item.visible)
+  const turnOn = legend.some((item) => !item.visible);
   for (const item of legend) {
-    setCategoryVisible(item, turnOn)
+    setCategoryVisible(item, turnOn);
   }
 }
 
+// 지정 좌표로 이동한다. level이 작을수록 확대된다(검색 선택 시 줌인용).
+function moveTo(lat, lng, level = 4) {
+  if (!map) {
+    return;
+  }
+  map.setLevel(level);
+  map.setCenter(new kakao.maps.LatLng(lat, lng));
+}
+
+defineExpose({ moveTo });
+
 function renderMap() {
   if (!mapContainer.value) {
-    return
+    return;
   }
   map = new kakao.maps.Map(mapContainer.value, {
     center: new kakao.maps.LatLng(36.3505, 127.3848), // 대전광역시청 기준 고정 중심
     level: 9,
-  })
+  });
 
-  const grouped = buildMarkers()
-  createClusterers(grouped)
-  status.value = 'ready'
+  const grouped = buildMarkers();
+  createClusterers(grouped);
+  status.value = "ready";
 }
 
 async function initialize() {
   try {
-    kakao = await loadKakaoMaps()
-    renderMap()
+    kakao = await loadKakaoMaps();
+    renderMap();
   } catch (error) {
-    status.value = 'error'
-    errorMessage.value = error?.message || '지도를 불러오지 못했어요.'
+    status.value = "error";
+    errorMessage.value = error?.message || "지도를 불러오지 못했어요.";
   }
 }
 
-onMounted(initialize)
+onMounted(initialize);
 
 // deep watch 금지: 배열 참조가 교체될 때(로드 완료 시 1회)만 재구성한다.
 watch(
   () => props.places,
   () => {
     if (!map) {
-      return
+      return;
     }
-    clearClusterers()
-    createClusterers(buildMarkers())
+    clearClusterers();
+    createClusterers(buildMarkers());
   },
-)
+);
 
 onBeforeUnmount(() => {
-  clearClusterers()
+  clearClusterers();
   // 마커 클릭 리스너는 마커 파괴와 함께 해제되고, map/kakao 참조를 끊어 누수를 막는다.
-  map = null
-  kakao = null
-})
+  map = null;
+  kakao = null;
+});
 </script>
 
 <template>
@@ -168,12 +191,8 @@ onBeforeUnmount(() => {
     <div v-if="legend.length" class="legend" aria-label="카테고리 토글">
       <div class="legend-head">
         <span class="legend-title">카테고리</span>
-        <button
-          type="button"
-          class="toggle-all"
-          @click="toggleAll"
-        >
-          {{ allVisible ? '전체 끄기' : '전체 켜기' }}
+        <button type="button" class="toggle-all" @click="toggleAll">
+          {{ allVisible ? "전체 끄기" : "전체 켜기" }}
         </button>
       </div>
       <ul class="legend-list">
@@ -324,7 +343,7 @@ onBeforeUnmount(() => {
 }
 
 .legend-item .switch::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 2px;
   left: 2px;

@@ -2,6 +2,7 @@
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 import { http } from "../../api/http";
+import { loadKakaoMaps } from "../../utils/kakaoLoader";
 
 const props = defineProps({
   content_id: { type: [Number, String], required: true },
@@ -14,8 +15,9 @@ const error = ref("");
 
 let mapInstance = null;
 let markerInstance = null;
-let sdkLoadPromise = null;
+// let sdkLoadPromise = null;
 
+/*
 function ensureKakaoMapsSdk() {
   if (window.kakao?.maps) {
     return Promise.resolve(window.kakao);
@@ -43,7 +45,7 @@ function ensureKakaoMapsSdk() {
   }
 
   return sdkLoadPromise;
-}
+}*/
 
 function renderMap() {
   if (!place.value || !mapContainer.value || !window.kakao?.maps) {
@@ -87,12 +89,11 @@ async function loadPlaceAndMap() {
     const { data } = await http.get(`/api/places/${props.content_id}`);
     place.value = data;
 
-    await ensureKakaoMapsSdk();
+    // await ensureKakaoMapsSdk();
+    await loadKakaoMaps();
     await nextTick();
-    window.kakao.maps.load(() => {
-      renderMap();
-      loading.value = false;
-    });
+    renderMap();
+    loading.value = false;
   } catch (fetchError) {
     error.value = "장소와 지도를 불러오지 못했어요.";
     loading.value = false;
