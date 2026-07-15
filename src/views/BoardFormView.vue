@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { createPost, fetchPost, updatePost } from '../api/posts'
+import { createPost, fetchPost, updatePost, verifyPostPassword } from '../api/posts'
 import AppHeader from '../components/common/AppHeader.vue'
 import { useProfileStore } from '../stores/profile'
 
@@ -37,15 +37,24 @@ onMounted(async () => {
 
 async function submit() {
   try {
+    error.value = ''; // 에러 메시지 초기화
+    
     if (isEditMode.value) {
-      await updatePost(route.params.postId, form)
-      router.push(`/board/${route.params.postId}`)
+      // 수정 모드일 때: 먼저 비밀번호 검증!
+      await verifyPostPassword(route.params.postId, form.edit_password);
+      
+      // 검증 성공 후 수정 진행
+      await updatePost(route.params.postId, form);
+      router.push(`/board/${route.params.postId}`);
     } else {
-      const post = await createPost({ ...form, nickname: profileStore.nickname })
-      router.push(`/board/${post.id}`)
+      // 작성 모드일 때: 그냥 저장
+      const post = await createPost({ ...form, nickname: profileStore.nickname });
+      router.push(`/board/${post.id}`);
     }
-  } catch {
-    error.value = '저장에 실패했습니다. 비밀번호를 확인하세요.'
+  } catch (e) {
+    // 403 에러나 네트워크 에러가 여기서 잡힙니다.
+    console.error(e);
+    error.value = '저장에 실패했습니다. 비밀번호를 확인하세요.';
   }
 }
 </script>
