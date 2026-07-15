@@ -7,6 +7,7 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
 }
 
 a {
@@ -18,6 +19,7 @@ button,
 input,
 select,
 textarea {
+  max-width: 100%;
   font: inherit;
 }
 
@@ -469,10 +471,10 @@ button {
 
 .airbnb-hero {
   position: relative;
-  min-height: 470px;
-  grid-template-columns: minmax(340px, 0.88fr) minmax(0, 1.12fr);
-  gap: 32px;
-  padding: 28px;
+  min-height: 440px;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.18fr);
+  gap: 28px;
+  padding: 30px;
   overflow: hidden;
   background: #fff;
   border: 1px solid var(--color-border-soft);
@@ -484,7 +486,7 @@ button {
   z-index: 1;
   display: grid;
   align-content: center;
-  gap: 14px;
+  gap: 16px;
   min-width: 0;
 }
 
@@ -509,7 +511,7 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 410px;
+  min-height: 380px;
   overflow: hidden;
   border-radius: 24px;
   background: var(--color-surface);
@@ -540,7 +542,7 @@ button {
   z-index: 1;
   width: 100%;
   height: 100%;
-  max-height: 410px;
+  max-height: 390px;
   object-fit: cover;
 }
 
@@ -577,6 +579,13 @@ button {
   gap: 8px;
 }
 
+.home-search-section {
+  position: relative;
+  z-index: 4;
+  width: min(100%, 860px);
+  margin: -10px auto 0;
+}
+
 .hero-dots button {
   width: 8px;
   height: 8px;
@@ -596,12 +605,13 @@ button {
   position: relative;
   display: block;
   align-items: center;
-  max-width: 560px;
-  min-height: 66px;
-  padding: 10px 70px 10px 22px;
+  width: 100%;
+  max-width: none;
+  min-height: 70px;
+  padding: 11px 76px 11px 24px;
   gap: 0;
   background: #fff;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-card);
 }
@@ -615,22 +625,24 @@ button {
 }
 
 .search-bar-pill label span {
-  color: var(--color-text);
-  font-size: 14px;
-  font-weight: 800;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
 }
 
 .search-bar-pill input {
-  min-height: 24px;
+  min-height: 28px;
   padding: 0;
   border: 0;
-  font-size: 17px;
-  font-weight: 500;
+  outline: 0;
+  font-size: 18px;
+  font-weight: 650;
 }
 
 .search-bar-pill input::placeholder {
   color: var(--color-text-muted);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 500;
 }
 
@@ -643,23 +655,23 @@ button {
   white-space: nowrap;
 }
 
-.search-bar-pill button {
+.search-bar-pill > button {
   position: absolute;
   top: 50%;
   right: 8px;
   transform: translateY(-50%);
   display: grid;
   place-items: center;
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
+  width: 54px;
+  min-width: 54px;
+  height: 54px;
   color: #fff;
   background: var(--color-primary);
   border: 0;
   border-radius: 50%;
 }
 
-.search-bar-pill button span,
+.search-bar-pill > button span,
 .ai-chat-input button span {
   position: relative;
   width: 18px;
@@ -667,7 +679,7 @@ button {
   display: block;
 }
 
-.search-bar-pill button span::before {
+.search-bar-pill > button span::before {
   content: "";
   position: absolute;
   left: 1px;
@@ -678,7 +690,7 @@ button {
   border-radius: 50%;
 }
 
-.search-bar-pill button span::after {
+.search-bar-pill > button span::after {
   content: "";
   position: absolute;
   right: 2px;
@@ -851,6 +863,69 @@ button {
   min-height: calc(100vh - 65px);
   padding: 18px;
   background: #f4f7f3;
+}
+
+.search-suggestion-panel {
+  position: absolute;
+  z-index: 8;
+  top: calc(100% + 12px);
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 330px;
+  overflow-y: auto;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 22px;
+  box-shadow: var(--shadow-card);
+}
+
+.search-suggestion-panel .search-suggestion-item {
+  position: static;
+  transform: none;
+  min-width: 0;
+  height: auto;
+  color: var(--color-text);
+  background: #fff;
+  border-radius: 14px;
+}
+
+.search-suggestion-item {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  min-height: 58px;
+  padding: 10px 12px;
+  color: var(--color-text);
+  text-align: left;
+  background: #fff;
+  border: 0;
+  border-radius: 14px;
+}
+
+.search-suggestion-item:hover {
+  background: var(--color-surface);
+}
+
+.search-suggestion-item strong {
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-suggestion-item span,
+.search-suggestion-panel p {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .single-place-map {
@@ -1486,6 +1561,64 @@ button {
   padding: 20px 0;
   background: #fff;
   border-bottom: 1px solid var(--color-border);
+}
+
+.post-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.board-category-filter {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.board-category-filter button {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 14px;
+  color: var(--color-text);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-weight: 850;
+}
+
+.board-category-filter button.active {
+  color: #fff;
+  background: var(--color-text);
+  border-color: var(--color-text);
+}
+
+.like-button {
+  width: fit-content;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  color: var(--color-text-muted);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.like-button span {
+  color: currentColor;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.like-button.liked {
+  color: var(--color-primary);
+  border-color: rgba(255, 56, 92, 0.35);
+  background: #fff3f5;
 }
 
 .post-row strong {

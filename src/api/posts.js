@@ -10,6 +10,11 @@ export async function fetchPost(postId) {
   return data;
 }
 
+export async function fetchPostWithParams(postId, params = {}) {
+  const { data } = await http.get(`/api/v1/posts/${postId}`, { params });
+  return data;
+}
+
 export async function createPost(payload) {
   const { data } = await http.post("/api/v1/posts", payload);
   return data;
@@ -40,4 +45,9 @@ export async function deletePost(postId, editPassword) {
   await http.delete(`/api/v1/posts/${postId}`, {
     data: { edit_password: editPassword },
   });
+}
+
+export async function togglePostLike(postId, guestId) {
+  const { data } = await http.post(`/api/v1/posts/${postId}/likes`, { guest_id: guestId });
+  return data;
 }

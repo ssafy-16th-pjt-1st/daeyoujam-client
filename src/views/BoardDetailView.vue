@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { createComment, deleteComment, fetchComments, fetchPost, deletePost, updatePost } from '../api/posts'
+import { createComment, deleteComment, fetchComments, fetchPostWithParams, deletePost, togglePostLike } from '../api/posts'
 import AppHeader from '../components/common/AppHeader.vue'
 import { useProfileStore } from '../stores/profile'
 
@@ -16,7 +16,7 @@ const commentForm = ref({ content: '', edit_password: '' })
 
 onMounted(async () => {
   try {
-    post.value = await fetchPost(route.params.postId)
+    post.value = await fetchPostWithParams(route.params.postId, { guest_id: profileStore.profile?.guestId })
     comments.value = await fetchComments(route.params.postId)
   } catch {
     error.value = '게시글을 불러오지 못했어요.'
@@ -33,6 +33,13 @@ async function removePost() {
   } catch {
     window.alert('비밀번호가 일치하지 않거나 삭제할 수 없어요.')
   }
+}
+
+async function toggleLike() {
+  if (!profileStore.profile?.guestId || !post.value) return
+  const result = await togglePostLike(post.value.id, profileStore.profile.guestId)
+  post.value.like_count = result.like_count
+  post.value.liked_by_viewer = result.liked_by_viewer
 }
 
 // --- 추가된 수정 페이지 이동 로직 ---
@@ -84,6 +91,16 @@ async function removeComment(comment) {
       <h1>{{ post.title }}</h1>
       <p>{{ post.content }}</p>
       <div class="button-row">
+        <button
+          class="like-button"
+          :class="{ liked: post.liked_by_viewer }"
+          type="button"
+          :aria-pressed="post.liked_by_viewer ? 'true' : 'false'"
+          @click="toggleLike"
+        >
+          <span aria-hidden="true">♥</span>
+          {{ post.like_count || 0 }}
+        </button>
         <button class="outline-button" type="button" @click="goToEdit">수정</button>
         <button class="outline-button" type="button" @click="removePost">삭제</button>
       </div>
