@@ -11,6 +11,7 @@ import ChatView from '../views/ChatView.vue'
 const routes = [
   { path: '/', name: 'landing', component: LandingView },
   { path: '/home', name: 'home', component: HomeView },
+  { path: '/map-list', name: 'map-list', component: MapDetailView },
   { path: '/map/:placeId', name: 'map-detail', component: MapDetailView },
   { path: '/chat', name: 'chat', component: ChatView },
   { path: '/board', name: 'board-list', component: BoardListView },

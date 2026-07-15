@@ -136,7 +136,7 @@ onBeforeUnmount(() => window.clearInterval(slideTimer))
         <p class="eyebrow">{{ profile.district || profile.city || '대전' }} 기반 추천</p>
         <h2>{{ profile.nickname || '여행자' }}님, 오늘은 어디가 유잼일까요?</h2>
       </div>
-      <RouterLink class="outline-button" to="/map/1">지도로 보기</RouterLink>
+      <RouterLink class="outline-button" to="/map-list">지도로 보기</RouterLink>
     </section>
 
     <section class="tool-strip">
