@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 
 import { fetchPlace } from "../api/places";
 import { createReview, deleteReview, fetchRating, fetchReviews, summarizeReviews, updateReview } from "../api/reviews";
+import { saveUser } from "../api/users";
 import AppHeader from "../components/common/AppHeader.vue";
 import SinglePlaceMap from "../components/place/SinglePlaceMap.vue";
 import { DAEYUJAM_PLACEHOLDER_IMAGE } from "../constants/images";
@@ -52,6 +53,27 @@ function notifySuccess(message, title = "완료되었습니다") {
 
 function notifyError(message, title = "처리하지 못했습니다") {
   notificationStore.show({ title, message, tone: "error" });
+}
+
+async function ensureUserProfileSaved() {
+  const profile = profileStore.profile;
+  if (!profile?.guestId) {
+    throw new Error("PROFILE_MISSING");
+  }
+
+  await saveUser({
+    guest_id: profile.guestId,
+    nickname: profile.nickname || "여행자",
+    age_group: profile.ageGroup,
+    gender: profile.gender,
+    province: profile.province || "대전광역시",
+    city: profile.city || "대덕구",
+    district: profile.district || "",
+    interests: profile.interests || [],
+    preferred_keywords: profile.preferredKeywords || [],
+    travel_style: profile.travelStyle,
+    companion_type: profile.companionType,
+  });
 }
 
 async function loadReviewSummary(placeId) {
@@ -111,6 +133,7 @@ async function submitReview() {
   }
 
   try {
+    await ensureUserProfileSaved();
     await createReview(place.value.id, {
       guest_id: profileStore.profile.guestId,
       rating: Number(reviewForm.rating),
@@ -122,8 +145,13 @@ async function submitReview() {
     reviewForm.edit_password = "";
     await loadPlaceReviews(place.value.id);
     notifySuccess("리뷰가 등록되었습니다.");
-  } catch {
-    notifyError("별점, 리뷰, 비밀번호를 모두 입력해 주세요.");
+  } catch (submitError) {
+    const detail = submitError.response?.data?.detail || submitError.cause?.response?.data?.detail;
+    if (detail === "User profile not found") {
+      notifyError("프로필 정보를 서버에 저장한 뒤 다시 시도해 주세요.");
+      return;
+    }
+    notifyError("리뷰 내용과 비밀번호를 확인해 주세요.");
   }
 }
 
