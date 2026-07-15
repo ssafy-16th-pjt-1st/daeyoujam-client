@@ -37,3 +37,14 @@ export async function sendChatMessage(payload) {
     throw normalizedError
   }
 }
+
+export async function fetchChatHistory(guestId, sessionId) {
+  const params = { guest_id: guestId }
+  if (sessionId) params.session_id = sessionId
+  const { data } = await http.get('/api/ai/chat/history', { params })
+  return data
+}
+
+export async function clearChatHistory(guestId) {
+  await http.delete('/api/ai/chat/history', { params: { guest_id: guestId } })
+}

@@ -66,9 +66,9 @@
 </template>
 
 <script setup>
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 
-import { sendChatMessage } from "../api/ai";
+import { fetchChatHistory, sendChatMessage } from "../api/ai";
 import AppHeader from "../components/common/AppHeader.vue";
 import { DAEYUJAM_PLACEHOLDER_IMAGE } from "../constants/images";
 import { useProfileStore } from "../stores/profile";
@@ -76,7 +76,9 @@ import { useProfileStore } from "../stores/profile";
 const profileStore = useProfileStore();
 const draft = ref("");
 const loading = ref(false);
+const historyLoading = ref(false);
 const chatLog = ref(null);
+const sessionId = ref(null);
 
 const profile = computed(() => profileStore.profile || {});
 const profileSummary = computed(() => {
@@ -95,6 +97,15 @@ const messages = ref([
     places: [],
   },
 ]);
+
+function defaultGreeting() {
+  return {
+    id: crypto.randomUUID(),
+    role: "bot",
+    text: "안녕하세요. 궁금한 지역, 장소, 분위기, 일정을 알려주면 장소 데이터를 함께 보고 추천해드릴게요.",
+    places: [],
+  };
+}
 
 function usePrompt(text) {
   draft.value = text;
@@ -119,9 +130,33 @@ async function scrollToBottom() {
   if (chatLog.value) chatLog.value.scrollTop = chatLog.value.scrollHeight;
 }
 
+async function loadChatHistory() {
+  if (!profile.value.guestId) return;
+  historyLoading.value = true;
+  try {
+    const history = await fetchChatHistory(profile.value.guestId);
+    sessionId.value = history.session_id || null;
+    if (history.messages?.length) {
+      messages.value = history.messages.map((message) => ({
+        id: `saved-${message.id}`,
+        role: message.role,
+        text: plainText(message.text),
+        places: message.places || [],
+      }));
+    } else {
+      messages.value = [defaultGreeting()];
+    }
+    await scrollToBottom();
+  } catch {
+    messages.value = [defaultGreeting()];
+  } finally {
+    historyLoading.value = false;
+  }
+}
+
 async function submitMessage() {
   const text = draft.value.trim();
-  if (!text || loading.value) return;
+  if (!text || loading.value || historyLoading.value) return;
 
   messages.value.push({ id: crypto.randomUUID(), role: "user", text, places: [] });
   draft.value = "";
@@ -130,9 +165,12 @@ async function submitMessage() {
 
   try {
     const response = await sendChatMessage({
+      guest_id: profile.value.guestId,
+      session_id: sessionId.value,
       message: text,
       user_profile: {
         nickname: profile.value.nickname,
+        guest_id: profile.value.guestId,
         age_group: profile.value.ageGroup,
         gender: profile.value.gender,
         district: profile.value.district,
@@ -140,6 +178,7 @@ async function submitMessage() {
       },
       limit: 4,
     });
+    sessionId.value = response.session_id || sessionId.value;
     messages.value.push({
       id: crypto.randomUUID(),
       role: "bot",
@@ -159,4 +198,6 @@ async function submitMessage() {
     await scrollToBottom();
   }
 }
+
+onMounted(loadChatHistory);
 </script>
