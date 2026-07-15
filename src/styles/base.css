@@ -1709,7 +1709,10 @@ button {
 }
 
 .chat-container {
+  height: calc(100vh - 67px);
   padding-top: 28px;
+  padding-bottom: 28px;
+  overflow: hidden;
 }
 
 .chat-shell {
@@ -1730,14 +1733,17 @@ button {
 
 .ai-chat-page {
   grid-template-columns: 340px minmax(0, 1fr);
-  min-height: calc(100vh - 130px);
+  height: 100%;
+  min-height: 0;
 }
 
 .chat-side-panel {
   display: grid;
   align-content: start;
   gap: 16px;
+  min-height: 0;
   padding: 28px;
+  overflow-y: auto;
   background: linear-gradient(160deg, #fff7f8, #ffffff 56%, #f7f7f7);
   border-right: 1px solid var(--color-border-soft);
 }
@@ -1814,8 +1820,10 @@ button {
 
 .chat-main-panel {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   background: #fff;
 }
 
@@ -1824,8 +1832,9 @@ button {
   align-content: start;
   gap: 16px;
   max-height: none;
-  min-height: 520px;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 28px;
   background: #fff;
 }
@@ -1984,6 +1993,7 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 52px;
   gap: 8px;
+  flex: 0 0 auto;
   padding: 16px 20px 20px;
   border-top: 1px solid var(--color-border-soft);
 }

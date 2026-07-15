@@ -187,11 +187,14 @@
 
   .ai-chat-page {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
     min-height: 0;
   }
 
   .chat-side-panel {
+    max-height: 34vh;
     padding: 22px;
+    overflow-y: auto;
     border-right: 0;
     border-bottom: 1px solid var(--color-border-soft);
   }
@@ -201,7 +204,7 @@
   }
 
   .chat-log {
-    min-height: 430px;
+    min-height: 0;
     padding: 20px;
   }
 
