@@ -10,13 +10,24 @@ const profileStore = useProfileStore()
 const posts = ref([])
 const q = ref('')
 const selectedCategory = ref('전체')
+const selectedSort = ref('recent')
 const error = ref('')
 const boardCategories = ['전체', '잡담', '음식점', '관광지', '문화시설', '축제', '쇼핑', '질문']
+const sortOptions = [
+  { value: 'recent', label: '최근순' },
+  { value: 'likes', label: '좋아요순' },
+  { value: 'views', label: '조회수순' },
+]
 
 async function loadPosts() {
   try {
     const category = selectedCategory.value === '전체' ? undefined : selectedCategory.value
-    const response = await fetchPosts({ q: q.value, category, guest_id: profileStore.profile?.guestId })
+    const response = await fetchPosts({
+      q: q.value,
+      category,
+      sort: selectedSort.value,
+      guest_id: profileStore.profile?.guestId,
+    })
     posts.value = response.items
   } catch {
     error.value = '게시글을 불러오지 못했어요.'
@@ -31,6 +42,7 @@ async function toggleLike(post) {
 }
 
 watch(selectedCategory, loadPosts)
+watch(selectedSort, loadPosts)
 onMounted(loadPosts)
 </script>
 
@@ -48,16 +60,26 @@ onMounted(loadPosts)
       <input v-model="q" placeholder="게시글 제목을 검색하세요" />
       <button type="submit">검색</button>
     </form>
-    <div class="board-category-filter" aria-label="게시판 카테고리 필터">
-      <button
-        v-for="category in boardCategories"
-        :key="category"
-        type="button"
-        :class="{ active: selectedCategory === category }"
-        @click="selectedCategory = category"
-      >
-        {{ category }}
-      </button>
+    <div class="board-filter-row">
+      <div class="board-category-filter" aria-label="게시판 카테고리 필터">
+        <button
+          v-for="category in boardCategories"
+          :key="category"
+          type="button"
+          :class="{ active: selectedCategory === category }"
+          @click="selectedCategory = category"
+        >
+          {{ category }}
+        </button>
+      </div>
+      <label class="board-sort-select">
+        <span>정렬</span>
+        <select v-model="selectedSort" aria-label="게시글 정렬">
+          <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </label>
     </div>
     <p v-if="error" class="notice">{{ error }}</p>
     <RouterLink v-for="post in posts" :key="post.id" class="post-row" :to="`/board/${post.id}`">

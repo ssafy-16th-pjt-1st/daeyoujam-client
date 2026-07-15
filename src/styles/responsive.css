@@ -254,6 +254,20 @@
     display: none;
   }
 
+  .board-filter-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .board-filter-row .board-category-filter,
+  .board-sort-select {
+    width: 100%;
+  }
+
+  .board-sort-select {
+    flex-basis: auto;
+  }
+
   .floating-chat {
     top: auto;
     right: 14px;

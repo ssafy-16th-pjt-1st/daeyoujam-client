@@ -79,6 +79,9 @@ async function loadPlaces() {
           district: profile.value.district,
           category,
           interests: profile.value.interests || [],
+          preferred_keywords: profile.value.preferredKeywords || [],
+          travel_style: profile.value.travelStyle,
+          companion_type: profile.value.companionType,
           limit: 12,
         });
     places.value = response.items;
@@ -135,6 +138,9 @@ async function loadPosts() {
       city: profile.value.city,
       district: profile.value.district,
       interests: profile.value.interests || [],
+      preferred_keywords: profile.value.preferredKeywords || [],
+      travel_style: profile.value.travelStyle,
+      companion_type: profile.value.companionType,
       limit: 6,
     });
     posts.value = response.items;
@@ -253,7 +259,7 @@ onBeforeUnmount(() => {
           <span class="badge">{{ post.category }}</span>
           <strong>{{ post.title }}</strong>
           <p>{{ post.content }}</p>
-          <small>{{ post.nickname }} · 조회 {{ post.view_count }}</small>
+          <small>{{ post.nickname }} · 조회 {{ post.view_count }} · 좋아요 {{ post.like_count || 0 }}</small>
           <em>{{ post.recommendation_reason }}</em>
         </RouterLink>
       </div>
