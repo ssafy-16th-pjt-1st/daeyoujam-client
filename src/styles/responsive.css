@@ -31,6 +31,9 @@
 
   .detail-layout {
     grid-template-columns: 1fr;
+    gap: 12px;
+    min-height: 0;
+    padding: 12px;
   }
 
   .map-page {
@@ -48,15 +51,18 @@
   }
 
   .detail-panel {
+    max-height: none;
     border-left: 0;
-    border-top: 1px solid var(--color-border);
   }
 
   .single-place-map {
     min-height: 420px;
   }
 
-  .map-canvas {
+  .map-canvas,
+  .map-frame,
+  .map-frame .single-place-map,
+  .map-frame .map-canvas {
     min-height: 420px;
   }
 }
@@ -235,6 +241,37 @@
 
   .map-canvas {
     min-height: 40vh;
+  }
+
+  .map-frame,
+  .map-frame .single-place-map,
+  .map-frame .map-canvas {
+    min-height: 40vh;
+  }
+
+  .detail-summary-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-section,
+  .detail-summary-strip {
+    margin-inline: 16px;
+  }
+
+  .detail-hero-body {
+    padding: 18px 16px;
+  }
+
+  .review-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .review-actions {
+    justify-content: stretch;
+  }
+
+  .review-actions button {
+    flex: 1;
   }
 }
 
