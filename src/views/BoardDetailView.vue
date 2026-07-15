@@ -1,12 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
-import { createComment, deleteComment, fetchComments, fetchPost } from '../api/posts'
+import { createComment, deleteComment, fetchComments, fetchPost, deletePost, updatePost } from '../api/posts'
 import AppHeader from '../components/common/AppHeader.vue'
 import { useProfileStore } from '../stores/profile'
 
 const route = useRoute()
+const router = useRouter()
 const profileStore = useProfileStore()
 const post = ref(null)
 const comments = ref([])
@@ -21,6 +22,37 @@ onMounted(async () => {
     error.value = '게시글을 불러오지 못했어요.'
   }
 })
+
+async function removePost() {
+  const password = window.prompt('삭제 비밀번호를 입력해 주세요.')
+  if (!password) return
+  try {
+    await deletePost(route.params.postId, password)
+    window.alert('삭제되었습니다.')
+    router.push('/board') // 홈으로 이동
+  } catch {
+    window.alert('비밀번호가 일치하지 않거나 삭제할 수 없어요.')
+  }
+}
+
+// --- 추가된 수정 페이지 이동 로직 ---
+function goToEdit() {
+  const password = window.prompt('수정 비밀번호를 입력해 주세요.')
+  if (!password) return // 취소 버튼을 누르면 종료
+
+  try {
+    // 1. 비밀번호가 맞는지 확인하는 API가 따로 있다면 호출하거나,
+    // 2. 혹은 바로 페이지로 넘기면서 비밀번호를 넘겨줍니다. (보안상 권장: 비밀번호 검증 API 호출)
+    
+    // 예시: 간단하게 검증 API를 호출한다고 가정
+    // await verifyPassword(route.params.postId, password) 
+    
+    // 검증 통과 시 페이지 이동
+    router.push(`/board/${route.params.postId}/edit`)
+  } catch {
+    alert('비밀번호가 일치하지 않습니다.')
+  }
+}
 
 async function submitComment() {
   const comment = await createComment(route.params.postId, {
@@ -52,8 +84,8 @@ async function removeComment(comment) {
       <h1>{{ post.title }}</h1>
       <p>{{ post.content }}</p>
       <div class="button-row">
-        <button class="outline-button" type="button">수정</button>
-        <button class="outline-button" type="button">삭제</button>
+        <button class="outline-button" type="button" @click="goToEdit">수정</button>
+        <button class="outline-button" type="button" @click="removePost">삭제</button>
       </div>
     </article>
     <section class="article-card">
