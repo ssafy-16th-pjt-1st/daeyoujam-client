@@ -87,14 +87,17 @@ async function loadPlaceAndMap() {
     const { data } = await http.get(`/api/places/${props.content_id}`);
     place.value = data;
 
-    await ensureKakaoMapsSdk();
-
+    /* await ensureKakaoMapsSdk(); */
+    await loadKakaoMaps();
     await nextTick();
+    renderMap();
+    loading.value = false;
 
+    /*
     window.kakao.maps.load(() => {
       renderMap();
       loading.value = false;
-    });
+    });*/
   } catch (fetchError) {
     error.value = "장소와 지도를 불러오지 못했어요.";
     loading.value = false;
