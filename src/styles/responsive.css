@@ -187,11 +187,14 @@
 
   .ai-chat-page {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
     min-height: 0;
   }
 
   .chat-side-panel {
+    max-height: 34vh;
     padding: 22px;
+    overflow-y: auto;
     border-right: 0;
     border-bottom: 1px solid var(--color-border-soft);
   }
@@ -201,7 +204,7 @@
   }
 
   .chat-log {
-    min-height: 430px;
+    min-height: 0;
     padding: 20px;
   }
 
@@ -229,6 +232,17 @@
     grid-column: 1;
     justify-self: stretch;
     min-width: 0;
+  }
+
+  .app-footer {
+    margin-top: 40px;
+    padding-inline: 16px;
+  }
+
+  .app-footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
 
   .fake-map {

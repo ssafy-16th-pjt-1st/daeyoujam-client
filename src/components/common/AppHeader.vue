@@ -20,6 +20,7 @@ function resetProfile() {
 
     <nav class="nav-pill" aria-label="주요 메뉴">
       <RouterLink :class="{ active: route.name === 'home' }" to="/home">Home</RouterLink>
+      <RouterLink :class="{ active: String(route.name).startsWith('map') }" to="/map-list">Map</RouterLink>
       <RouterLink :class="{ active: route.name === 'chat' }" to="/chat">Chat</RouterLink>
       <RouterLink :class="{ active: String(route.name).startsWith('board') }" to="/board">Board</RouterLink>
     </nav>

@@ -1,13 +1,12 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import AppFooter from "../components/common/AppFooter.vue";
 import AppHeader from "../components/common/AppHeader.vue";
 import EmptyState from "../components/common/EmptyState.vue";
 import LoadingState from "../components/common/LoadingState.vue";
 import CategoryChips from "../components/place/CategoryChips.vue";
 import PlaceCard from "../components/place/PlaceCard.vue";
-import { fetchPlaces, searchPlaces } from "../api/places";
+import { searchPlaces } from "../api/places";
 import { fetchRecommendations, fetchRecommendedPosts } from "../api/recommendations";
 import { HOME_HERO_SLIDES } from "../constants/slides";
 import { useProfileStore } from "../stores/profile";
@@ -68,15 +67,16 @@ async function loadPlaces() {
   try {
     const response = query.value.trim()
       ? await searchPlaces({ q: query.value.trim(), category, size: 12 })
-      : selectedCategory.value === "전체"
-        ? await fetchRecommendations({
-            age_group: profile.value.ageGroup,
-            gender: profile.value.gender,
-            district: profile.value.district,
-            interests: profile.value.interests || [],
-            limit: 12,
-          })
-        : await fetchPlaces({ category, size: 12 });
+      : await fetchRecommendations({
+          age_group: profile.value.ageGroup,
+          gender: profile.value.gender,
+          province: profile.value.province,
+          city: profile.value.city,
+          district: profile.value.district,
+          category,
+          interests: profile.value.interests || [],
+          limit: 12,
+        });
     places.value = response.items;
   } catch {
     error.value = "API 연결이 불안정해 예시 데이터를 표시합니다.";
@@ -91,6 +91,8 @@ async function loadPosts() {
     const response = await fetchRecommendedPosts({
       age_group: profile.value.ageGroup,
       gender: profile.value.gender,
+      province: profile.value.province,
+      city: profile.value.city,
       district: profile.value.district,
       interests: profile.value.interests || [],
       limit: 6,
@@ -198,5 +200,4 @@ onBeforeUnmount(() => window.clearInterval(slideTimer));
     <span class="floating-chat-label">AI 추천</span>
   </RouterLink>
   <RouterLink class="floating-write" to="/board/new">글쓰기</RouterLink>
-  <AppFooter />
 </template>
