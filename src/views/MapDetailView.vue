@@ -5,6 +5,8 @@ import { useRoute } from "vue-router";
 import { fetchPlace } from "../api/places";
 import AppHeader from "../components/common/AppHeader.vue";
 import { DAEYUJAM_PLACEHOLDER_IMAGE } from "../constants/images";
+// MapDetailView.vue 의 <script setup> 상단
+import SinglePlaceMap from "../components/place/SinglePlaceMap.vue";
 
 const route = useRoute();
 const place = ref(null);
