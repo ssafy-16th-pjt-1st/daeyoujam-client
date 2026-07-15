@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { createComment, deleteComment, fetchComments, fetchPost, deletePost, updatePost } from '../api/posts'
+import { createComment, deleteComment, fetchComments, fetchPost, deletePost, updatePost, verifyPostPassword } from '../api/posts'
 import AppHeader from '../components/common/AppHeader.vue'
 import { useProfileStore } from '../stores/profile'
 
@@ -35,22 +35,20 @@ async function removePost() {
   }
 }
 
-// --- 추가된 수정 페이지 이동 로직 ---
-function goToEdit() {
-  const password = window.prompt('수정 비밀번호를 입력해 주세요.')
-  if (!password) return // 취소 버튼을 누르면 종료
+async function goToEdit() {
+  const password = window.prompt('수정 비밀번호를 입력해 주세요.');
+  if (!password) return;
 
   try {
-    // 1. 비밀번호가 맞는지 확인하는 API가 따로 있다면 호출하거나,
-    // 2. 혹은 바로 페이지로 넘기면서 비밀번호를 넘겨줍니다. (보안상 권장: 비밀번호 검증 API 호출)
+    // 1. 서버에 비밀번호 검증 요청
+    await verifyPostPassword(route.params.postId, password);
     
-    // 예시: 간단하게 검증 API를 호출한다고 가정
-    // await verifyPassword(route.params.postId, password) 
-    
-    // 검증 통과 시 페이지 이동
-    router.push(`/board/${route.params.postId}/edit`)
-  } catch {
-    alert('비밀번호가 일치하지 않습니다.')
+    // 2. 성공 시 수정 페이지로 이동
+    router.push(`/board/${route.params.postId}/edit`);
+  } catch (err) {
+    // 3. 서버 응답이 403(Forbidden)이거나 에러 발생 시 처리
+    console.error("비밀번호 검증 실패:", err);
+    window.alert('비밀번호가 일치하지 않습니다.');
   }
 }
 

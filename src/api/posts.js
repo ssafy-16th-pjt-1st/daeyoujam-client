@@ -41,3 +41,17 @@ export async function deletePost(postId, editPassword) {
     data: { edit_password: editPassword },
   });
 }
+
+export async function verifyPostPassword(postId, editPassword) {
+  console.log("전송 시작, ID:", postId, "비번:", editPassword);
+  try {
+    const response = await http.post(`/api/v1/posts/${postId}/verify`, {
+      edit_password: editPassword, // 백엔드 PostDelete 스키마와 일치해야 함
+    });
+    console.log("서버 응답:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("통신 에러 상세:", error.response?.data || error.message);
+    throw error; // 에러를 호출한 곳(goToEdit)으로 던짐
+  }
+}
