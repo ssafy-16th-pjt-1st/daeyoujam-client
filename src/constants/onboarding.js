@@ -48,7 +48,7 @@ export const SUGGESTED_KEYWORDS = [
 ]
 
 export const TRAVEL_STYLES = [
-  '느긋한 산책',
+  '힐링',
   '맛집 탐방',
   '문화생활',
   '사진 촬영',
